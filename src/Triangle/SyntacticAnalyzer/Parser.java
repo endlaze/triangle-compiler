@@ -304,7 +304,7 @@ public class Parser {
         acceptIt();
         Declaration dAST = parseDeclaration();
         accept(Token.IN);
-        Command cAST = parseSingleCommand();
+        Command cAST = parseCommand();  // Modificar a command
         finish(commandPos);
         commandAST = new LetCommand(dAST, cAST, commandPos);
       }
@@ -315,22 +315,90 @@ public class Parser {
         acceptIt();
         Expression eAST = parseExpression();
         accept(Token.THEN);
-        Command c1AST = parseSingleCommand();
+        Command c1AST = parseCommand(); // Modificar a command
         accept(Token.ELSE);
-        Command c2AST = parseSingleCommand();
+        Command c2AST = parseCommand(); // Modificar a command
         finish(commandPos);
         commandAST = new IfCommand(eAST, c1AST, c2AST, commandPos);
       }
       break;
-
-    case Token.WHILE:
+    case Token.LOOP:
+      {
+          acceptIt();
+          switch(currentToken.kind) {
+                case Token.WHILE: // Modificar loop
+                  {
+                    acceptIt();
+                    Expression eAST = parseExpression();
+                    accept(Token.DO);
+                    Command cAST = parseCommand(); // Modificar a command
+                    accept(Token.REPEAT);         // Aceptar repeat
+                    finish(commandPos);
+        //            commandAST = new LoopWhileDoCommand(eAST, cAST, commandPos);
+                  }
+                  break;
+                  
+                case Token.UNTIL:
+                  {
+                    acceptIt();
+                    Expression eAST = parseExpression();
+                    accept(Token.DO);
+                    Command cAST = parseCommand(); // Modificar a command
+                    accept(Token.REPEAT);         // Aceptar repeat
+                    finish(commandPos);
+    //                commandAST = new LoopUntilDoCommand(eAST, cAST, commandPos);    //Until command
+                  }
+                  break;
+                
+                case Token.DO:
+                  {
+                      acceptIt();
+                      Command cAST = parseCommand();
+                      if (currentToken.kind == Token.WHILE) {  
+                        accept(Token.WHILE);
+                        Expression eAST = parseExpression();
+                        accept(Token.REPEAT);
+                        finish(commandPos);
+      //                  commandAST = new LoopDoWhileCommand(cAST, eAST, commandPos);
+                      }
+                      else if (currentToken.kind == Token.UNTIL) {
+                          accept(Token.UNTIL);
+                          Expression eAST = parseExpression();
+                          accept(Token.REPEAT);
+                          finish(commandPos);
+    //                      commandAST = new LoopDoUntilCommand(cAST, eAST, commandPos);
+                      }
+                      
+                  }
+                  break;
+                  
+                case Token.FOR:
+                {
+                    acceptIt();
+                    Identifier iAST = parseIdentifier();
+                    accept(Token.IS);
+                    Expression eAST = parseExpression();
+                    accept(Token.TO);
+                    Expression eAST2 = parseExpression();
+                    accept(Token.DO);
+                    Command cAST = parseCommand();
+                    accept(Token.REPEAT);
+                    finish(commandPos);
+    //                commandAST = new LoopForCommand(iAST, eAST, eAST2, cAST);
+                }
+                
+            }
+          
+      }
+      break;
+    
+      
+    //New
+    case Token.SKIP:
       {
         acceptIt();
-        Expression eAST = parseExpression();
-        accept(Token.DO);
-        Command cAST = parseSingleCommand();
         finish(commandPos);
-        commandAST = new WhileCommand(eAST, cAST, commandPos);
+ //       commandAST = new SkipCommand(commandPos);
       }
       break;
 
@@ -590,15 +658,22 @@ public class Parser {
 
     SourcePosition declarationPos = new SourcePosition();
     start(declarationPos);
-    declarationAST = parseSingleDeclaration();
+    declarationAST = parseCompoundDeclaration(); // Pasa a ser compound declaration
     while (currentToken.kind == Token.SEMICOLON) {
       acceptIt();
-      Declaration d2AST = parseSingleDeclaration();
+      Declaration d2AST = parseCompoundDeclaration(); // Pasa a ser compound declaration
       finish(declarationPos);
       declarationAST = new SequentialDeclaration(declarationAST, d2AST,
         declarationPos);
     }
     return declarationAST;
+  }
+  
+  Declaration parseCompoundDeclaration() throws SyntaxError {
+          Declaration declarationAST = null; // in case there's a syntactic error
+
+        SourcePosition declarationPos = new SourcePosition();
+        start(declarationPos);
   }
 
   Declaration parseSingleDeclaration() throws SyntaxError {
