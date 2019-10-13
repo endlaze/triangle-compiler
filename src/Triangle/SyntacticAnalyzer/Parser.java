@@ -752,7 +752,7 @@ public class Parser {
       
   }
   
-  Declaration parseProcFuncs() throws SyntaxErrror {
+  Declaration parseProcFuncs() throws SyntaxError {
       Declaration declarationAST = null; // in case there's a syntactic error
       SourcePosition declarationPos = new SourcePosition();
       start(declarationPos);
@@ -822,7 +822,6 @@ public class Parser {
             finish(declarationPos);
 //            declarationAST = new VarInitDeclaration(iAST, eAST, declarationPos);
         }
-        
       }
       break;
 
