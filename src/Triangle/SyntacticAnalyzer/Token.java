@@ -67,53 +67,53 @@ final class Token extends Object {
     OPERATOR	= 3,
 
     // reserved words - must be in alphabetical order...
-    AND = 4, //new
-    ARRAY		= 4,
+    AND                 = 4, //new
+    ARRAY		= 5,
 //    BEGIN		= 5,
     CONST		= 6,
     DO			= 7,
     ELSE		= 8,
     END			= 9,
-    FOR = 1000, //new
-    FUNC		= 10,
-    IF			= 11,
-    IN			= 12,
-    INIT = 1000, //new
-    LET			= 13,
-    LOCAL = 1000, //new
-    LOOP = 1000, //new
-    OF			= 14,
-    PROC		= 15,
-    RECORD		= 16,
-    RECURSIVE = 1000, //new
-    REPEAT = 1000, //new
-    SKIP = 1000, //new
-    THEN		= 17,
-    TO = 1000, //new
-    TYPE		= 18,
-    UNTIL = 1000, //new
-    VAR			= 19,
-    WHILE		= 20,
+    FOR                 = 10, //new
+    FUNC		= 11,
+    IF			= 12,
+    IN			= 13,
+    INIT                = 14, //new
+    LET		        = 15,
+    LOCAL               = 16, //new
+    LOOP                = 17, //new
+    OF			= 18,
+    PROC		= 19,
+    RECORD		= 20,
+    RECURSIVE           = 21, //new
+    REPEAT              = 22, //new
+    SKIP                = 23, //new
+    THEN		= 24,
+    TO                  = 25, //new
+    TYPE		= 26,
+    UNTIL               = 27, //new
+    VAR			= 28,
+    WHILE		= 29,
 
     // punctuation...
-    DOT			= 21,
-    COLON		= 22,
-    SEMICOLON	= 23,
-    COMMA		= 24,
-    BECOMES		= 25,
-    IS			= 26,
+    DOT			= 30,
+    COLON		= 31,
+    SEMICOLON           = 32,
+    COMMA		= 33,
+    BECOMES		= 34,
+    IS			= 35,
 
     // brackets...
-    LPAREN		= 27,
-    RPAREN		= 28,
-    LBRACKET	= 29,
-    RBRACKET	= 30,
-    LCURLY		= 31,
-    RCURLY		= 32,
+    LPAREN		= 36,
+    RPAREN		= 37,
+    LBRACKET            = 38,
+    RBRACKET            = 39,
+    LCURLY		= 40,
+    RCURLY		= 41,
 
     // special tokens...
-    EOT			= 33, //new
-    ERROR		= 34;
+    EOT			= 42, //new
+    ERROR		= 43;
 
   private static String[] tokenTable = new String[] {
     "<int>",
