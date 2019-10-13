@@ -67,21 +67,31 @@ final class Token extends Object {
     OPERATOR	= 3,
 
     // reserved words - must be in alphabetical order...
+    AND = 4, //new
     ARRAY		= 4,
-    BEGIN		= 5,
+//    BEGIN		= 5,
     CONST		= 6,
     DO			= 7,
     ELSE		= 8,
     END			= 9,
+    FOR = 1000, //new
     FUNC		= 10,
     IF			= 11,
     IN			= 12,
+    INIT = 1000, //new
     LET			= 13,
+    LOCAL = 1000, //new
+    LOOP = 1000, //new
     OF			= 14,
     PROC		= 15,
     RECORD		= 16,
+    RECURSIVE = 1000, //new
+    REPEAT = 1000, //new
+    SKIP = 1000, //new
     THEN		= 17,
+    TO = 1000, //new
     TYPE		= 18,
+    UNTIL = 1000, //new
     VAR			= 19,
     WHILE		= 20,
 
@@ -102,7 +112,7 @@ final class Token extends Object {
     RCURLY		= 32,
 
     // special tokens...
-    EOT			= 33,
+    EOT			= 33, //new
     ERROR		= 34;
 
   private static String[] tokenTable = new String[] {
@@ -110,21 +120,31 @@ final class Token extends Object {
     "<char>",
     "<identifier>",
     "<operator>",
+    "and", //new
     "array",
-    "begin",
+//    "begin",
     "const",
     "do",
     "else",
     "end",
+    "for", //new
     "func",
     "if",
     "in",
+    "init", //new
     "let",
+    "local", //new 
+    "loop", //new
     "of",
     "proc",
     "record",
+    "recursive", //new
+    "repeat", //new
+    "skip", //new
     "then",
+    "to", //new
     "type",
+    "until", //new
     "var",
     "while",
     ".",
