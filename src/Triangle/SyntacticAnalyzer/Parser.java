@@ -49,6 +49,7 @@ import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
 import Triangle.AbstractSyntaxTrees.LetExpression;
+import Triangle.AbstractSyntaxTrees.LocalDeclaration;
 import Triangle.AbstractSyntaxTrees.MultipleActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.MultipleArrayAggregate;
 import Triangle.AbstractSyntaxTrees.MultipleFieldTypeDenoter;
@@ -86,7 +87,10 @@ import Triangle.AbstractSyntaxTrees.LoopUntilDoCommand;
 import Triangle.AbstractSyntaxTrees.LoopDoWhileCommand;
 import Triangle.AbstractSyntaxTrees.LoopDoUntilCommand;
 import Triangle.AbstractSyntaxTrees.LoopForCommand;
+import Triangle.AbstractSyntaxTrees.ProcFuncDeclaration;
+import Triangle.AbstractSyntaxTrees.RecursiveDeclaration;
 import Triangle.AbstractSyntaxTrees.SkipCommand;
+import Triangle.AbstractSyntaxTrees.VarInitDeclaration;
 
 public class Parser {
 
@@ -690,7 +694,7 @@ public class Parser {
   
               accept(Token.END);
               finish(declarationPos);
-             // declarationAST = new RecursiveDeclaration(dAST, declarationPos)     
+              declarationAST = new RecursiveDeclaration(dAST, declarationPos);     
             }
             break;
           
@@ -702,7 +706,7 @@ public class Parser {
                 Declaration d2AST = parseDeclaration();
                 accept(Token.END);
                 finish(declarationPos);
-                // declarationAst = new LocalDeclaration(dAST, d2AST, declarationPos);
+                declarationAST = new LocalDeclaration(dAST, d2AST, declarationPos);
             }
             break;
             
@@ -781,10 +785,10 @@ public class Parser {
       finish(declarationPos);
       
       if (currentToken.kind != Token.AND) {
-          //declarationAST = new ProcFuncDeclaration(pfAST, null,declarationPos);
+          declarationAST = new ProcFuncDeclaration(pfAST, null,declarationPos);
       }
       else {
-          //declarationAST = new ProcFuncDeclaration(pfAST, parseProcFuncs(),declarationPos);
+          declarationAST = new ProcFuncDeclaration(pfAST, parseProcFuncs(),declarationPos);
       }
       
       return declarationAST;   
@@ -826,7 +830,7 @@ public class Parser {
             acceptIt();
             Expression eAST = parseExpression();
             finish(declarationPos);
-//            declarationAST = new VarInitDeclaration(iAST, eAST, declarationPos);
+            declarationAST = new VarInitDeclaration(iAST, eAST, declarationPos);
         }
       }
       break;

@@ -30,6 +30,7 @@ public interface Visitor {
   public abstract Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o);
   public abstract Object visitLoopForCommand(LoopForCommand ast, Object o);
   public abstract Object visitSkipCommand(SkipCommand ast, Object o);
+  
 
 
   // Expressions
@@ -54,6 +55,10 @@ public interface Visitor {
   public abstract Object visitTypeDeclaration(TypeDeclaration ast, Object o);
   public abstract Object visitUnaryOperatorDeclaration(UnaryOperatorDeclaration ast, Object o);
   public abstract Object visitVarDeclaration(VarDeclaration ast, Object o);
+  public abstract Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o);
+  public abstract Object visitLocalDeclaration(LocalDeclaration ast, Object o);
+  public abstract Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o);
+  public abstract Object visitVarInitDeclaration(VarInitDeclaration ast, Object o);
 
   // Array Aggregates
   public abstract Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object o);
