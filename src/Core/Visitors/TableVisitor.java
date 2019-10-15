@@ -150,6 +150,48 @@ public class TableVisitor implements Visitor {
       
       return(null);
   }
+  
+  @Override
+    public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
+       ast.C.visit(this, null);
+       ast.E.visit(this, null);
+       return (null);
+    }
+
+    @Override
+    public Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o) {
+        ast.C.visit(this, null);
+        ast.E.visit(this, null);
+        return (null);
+    }
+
+    @Override
+    public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
+        ast.C.visit(this, null);
+        return (null);
+    }
+
+    @Override
+    public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
+        ast.C.visit(this, null);
+        ast.E.visit(this, null);
+        return (null);
+    }
+
+    @Override
+    public Object visitLoopForCommand(LoopForCommand ast, Object o) {
+        ast.C.visit(this, null);
+        ast.E1.visit(this, null);
+        ast.E2.visit(this, null);
+        ast.I.visit(this, null);
+       return (null);
+    }
+
+    @Override
+    public Object visitSkipCommand(SkipCommand ast, Object o) {
+        return (null);
+    }
+  
   // </editor-fold>
 
   // <editor-fold defaultstate="collapsed" desc=" Expressions ">
@@ -318,55 +360,33 @@ public class TableVisitor implements Visitor {
       ast.T.visit(this, null);
       return(null);
   }
-
-    @Override
-    public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object visitLoopForCommand(LoopForCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object visitSkipCommand(SkipCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+  
     @Override
     public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.D.visit(this, null);
+        return (null);
     }
 
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.D1.visit(this, null);
+        ast.D2.visit(this, null);
+        return (null);
     }
 
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.D1.visit(this, null);
+        ast.D2.visit(this, null);
+        return (null);
+        
     }
 
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.E.visit(this, null);
+        ast.I.visit(this, null);
+        return (null);
     }
   
   
