@@ -81,6 +81,12 @@ import Triangle.AbstractSyntaxTrees.VarFormalParameter;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.AbstractSyntaxTrees.LoopWhileDoCommand;
+import Triangle.AbstractSyntaxTrees.LoopUntilDoCommand;
+import Triangle.AbstractSyntaxTrees.LoopDoWhileCommand;
+import Triangle.AbstractSyntaxTrees.LoopDoUntilCommand;
+import Triangle.AbstractSyntaxTrees.LoopForCommand;
+import Triangle.AbstractSyntaxTrees.SkipCommand;
 
 public class Parser {
 
@@ -335,7 +341,7 @@ public class Parser {
                     Command cAST = parseCommand(); // Modificar a command
                     accept(Token.REPEAT);         // Aceptar repeat
                     finish(commandPos);
-        //            commandAST = new LoopWhileDoCommand(eAST, cAST, commandPos);
+                    commandAST = new LoopWhileDoCommand(eAST, cAST, commandPos);
                   }
                   break;
                   
@@ -347,7 +353,7 @@ public class Parser {
                     Command cAST = parseCommand(); // Modificar a command
                     accept(Token.REPEAT);         // Aceptar repeat
                     finish(commandPos);
-    //                commandAST = new LoopUntilDoCommand(eAST, cAST, commandPos);    //Until command
+                    commandAST = new LoopUntilDoCommand(eAST, cAST, commandPos);    //Until do command
                   }
                   break;
                 
@@ -360,14 +366,14 @@ public class Parser {
                         Expression eAST = parseExpression();
                         accept(Token.REPEAT);
                         finish(commandPos);
-      //                  commandAST = new LoopDoWhileCommand(cAST, eAST, commandPos);
+                        commandAST = new LoopDoWhileCommand(cAST, eAST, commandPos);
                       }
                       else if (currentToken.kind == Token.UNTIL) {
                           accept(Token.UNTIL);
                           Expression eAST = parseExpression();
                           accept(Token.REPEAT);
                           finish(commandPos);
-    //                      commandAST = new LoopDoUntilCommand(cAST, eAST, commandPos);
+                          commandAST = new LoopDoUntilCommand(cAST, eAST, commandPos);
                       }
                       
                   }
@@ -385,7 +391,7 @@ public class Parser {
                     Command cAST = parseCommand();
                     accept(Token.REPEAT);
                     finish(commandPos);
-    //                commandAST = new LoopForCommand(iAST, eAST, eAST2, cAST);
+                    commandAST = new LoopForCommand(iAST, eAST, eAST2, cAST, commandPos);
                 }
                 
             }
@@ -399,7 +405,7 @@ public class Parser {
       {
         acceptIt();
         finish(commandPos);
- //       commandAST = new SkipCommand(commandPos);
+        commandAST = new SkipCommand(commandPos);
       }
       break;
 
@@ -680,7 +686,7 @@ public class Parser {
           case Token.RECURSIVE:
             {
               acceptIt();
-   //           Declaration dAST = parseProcFuncs(); // 
+              Declaration dAST = parseProcFuncs(); // 
   
               accept(Token.END);
               finish(declarationPos);

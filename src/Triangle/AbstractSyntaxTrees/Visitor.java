@@ -24,6 +24,12 @@ public interface Visitor {
   public abstract Object visitLetCommand(LetCommand ast, Object o);
   public abstract Object visitSequentialCommand(SequentialCommand ast, Object o);
   public abstract Object visitWhileCommand(WhileCommand ast, Object o);
+  public abstract Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o);
+  public abstract Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o);
+  public abstract Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o);
+  public abstract Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o);
+  public abstract Object visitLoopForCommand(LoopForCommand ast, Object o);
+  public abstract Object visitSkipCommand(SkipCommand ast, Object o);
 
 
   // Expressions
