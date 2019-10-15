@@ -260,7 +260,6 @@ public class Parser {
 // to represent its phrase structure.
 
   Command parseCommand() throws SyntaxError {
-    System.out.println("Command parsed, end required upnext");
     Command commandAST = null; // in case there's a syntactic error
 
     SourcePosition commandPos = new SourcePosition();
@@ -311,7 +310,7 @@ public class Parser {
 //      accept(Token.END);
 //      break;
 
-    case Token.LET:
+    case Token.LET: // Modificar let 
       {
         System.out.println("Command parsed, end required upnext");
         acceptIt();
@@ -325,7 +324,7 @@ public class Parser {
       }
       break;
 
-    case Token.IF:
+    case Token.IF: //Modificar if
       {
         acceptIt();
         Expression eAST = parseExpression();
@@ -337,11 +336,11 @@ public class Parser {
         commandAST = new IfCommand(eAST, c1AST, c2AST, commandPos);
       }
       break;
-    case Token.LOOP:
+    case Token.LOOP: //Crear loop
       {
           acceptIt();
           switch(currentToken.kind) {
-                case Token.WHILE: // Modificar loop
+                case Token.WHILE: // Crear loop while do repeat
                   {
                     acceptIt();
                     Expression eAST = parseExpression();
@@ -353,7 +352,7 @@ public class Parser {
                   }
                   break;
                   
-                case Token.UNTIL:
+                case Token.UNTIL: //Crear loop until do repeat
                   {
                     acceptIt();
                     Expression eAST = parseExpression();
@@ -365,7 +364,7 @@ public class Parser {
                   }
                   break;
                 
-                case Token.DO:
+                case Token.DO: // Crear loop do while repeat
                   {
                       acceptIt();
                       Command cAST = parseCommand();
@@ -387,7 +386,7 @@ public class Parser {
                   }
                   break;
                   
-                case Token.FOR:
+                case Token.FOR: //Crear for ~ to do repeat
                 {
                     acceptIt();
                     Identifier iAST = parseIdentifier();
@@ -400,16 +399,12 @@ public class Parser {
                     accept(Token.REPEAT);
                     finish(commandPos);
                     commandAST = new LoopForCommand(iAST, eAST, eAST2, cAST, commandPos);
-                }
-                
+                } 
             }
-          
       }
       break;
-    
       
-    //New
-    case Token.SKIP:
+    case Token.SKIP: // Crear comando skip
       {
         acceptIt();
         finish(commandPos);
@@ -417,15 +412,15 @@ public class Parser {
       }
       break;
 
-    //case Token.SEMICOLON:
+    case Token.SEMICOLON:
     //case Token.END:
     //case Token.ELSE:
     //case Token.IN:
-    case Token.EOT:
-
-      finish(commandPos);
-      commandAST = new SkipCommand(commandPos);
-      break;
+//    case Token.EOT:
+//
+//      finish(commandPos);
+//      commandAST = new EmptyCommand(commandPos);
+//      break;
 
     default:
       syntacticError("\"%\" cannot start a command",
