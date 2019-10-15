@@ -785,7 +785,7 @@ public class Parser {
       finish(declarationPos);
       
       if (currentToken.kind != Token.AND) {
-          declarationAST = new ProcFuncDeclaration(pfAST, null,declarationPos);
+          declarationAST = new ProcFuncDeclaration(pfAST, null, declarationPos);
       }
       else {
           declarationAST = new ProcFuncDeclaration(pfAST, parseProcFuncs(),declarationPos);

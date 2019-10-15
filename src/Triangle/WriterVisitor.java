@@ -1,4 +1,4 @@
-package Triangle.TreeWriterHTML;
+package Triangle;
 
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
 import Triangle.AbstractSyntaxTrees.ArrayExpression;
@@ -32,6 +32,12 @@ import Triangle.AbstractSyntaxTrees.IntegerExpression;
 import Triangle.AbstractSyntaxTrees.IntegerLiteral;
 import Triangle.AbstractSyntaxTrees.LetCommand;
 import Triangle.AbstractSyntaxTrees.LetExpression;
+import Triangle.AbstractSyntaxTrees.LocalDeclaration;
+import Triangle.AbstractSyntaxTrees.LoopDoUntilCommand;
+import Triangle.AbstractSyntaxTrees.LoopDoWhileCommand;
+import Triangle.AbstractSyntaxTrees.LoopForCommand;
+import Triangle.AbstractSyntaxTrees.LoopUntilDoCommand;
+import Triangle.AbstractSyntaxTrees.LoopWhileDoCommand;
 import Triangle.AbstractSyntaxTrees.MultipleActualParameterSequence;
 import Triangle.AbstractSyntaxTrees.MultipleArrayAggregate;
 import Triangle.AbstractSyntaxTrees.MultipleFieldTypeDenoter;
@@ -41,9 +47,11 @@ import Triangle.AbstractSyntaxTrees.Operator;
 import Triangle.AbstractSyntaxTrees.ProcActualParameter;
 import Triangle.AbstractSyntaxTrees.ProcDeclaration;
 import Triangle.AbstractSyntaxTrees.ProcFormalParameter;
+import Triangle.AbstractSyntaxTrees.ProcFuncDeclaration;
 import Triangle.AbstractSyntaxTrees.Program;
 import Triangle.AbstractSyntaxTrees.RecordExpression;
 import Triangle.AbstractSyntaxTrees.RecordTypeDenoter;
+import Triangle.AbstractSyntaxTrees.RecursiveDeclaration;
 import Triangle.AbstractSyntaxTrees.SequentialCommand;
 import Triangle.AbstractSyntaxTrees.SequentialDeclaration;
 import Triangle.AbstractSyntaxTrees.SimpleTypeDenoter;
@@ -53,6 +61,7 @@ import Triangle.AbstractSyntaxTrees.SingleArrayAggregate;
 import Triangle.AbstractSyntaxTrees.SingleFieldTypeDenoter;
 import Triangle.AbstractSyntaxTrees.SingleFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.SingleRecordAggregate;
+import Triangle.AbstractSyntaxTrees.SkipCommand;
 import Triangle.AbstractSyntaxTrees.SubscriptVname;
 import Triangle.AbstractSyntaxTrees.TypeDeclaration;
 import Triangle.AbstractSyntaxTrees.UnaryExpression;
@@ -60,6 +69,7 @@ import Triangle.AbstractSyntaxTrees.UnaryOperatorDeclaration;
 import Triangle.AbstractSyntaxTrees.VarActualParameter;
 import Triangle.AbstractSyntaxTrees.VarDeclaration;
 import Triangle.AbstractSyntaxTrees.VarFormalParameter;
+import Triangle.AbstractSyntaxTrees.VarInitDeclaration;
 import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
@@ -129,6 +139,60 @@ public class WriterVisitor implements Visitor {
         writeLineHTML("</WhileCommand>");
         return null;
     }
+    
+    @Override
+    public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
+        writeLineHTML("<LoopWhileDoCommand>");
+        ast.C.visit(this, null);
+        ast.E.visit(this, null);
+        writeLineHTML("</LoopWhileDoCommand>");
+        return null;
+    }
+
+    @Override
+    public Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o) {
+        writeLineHTML("<LoopUntilDoCommand>");
+        ast.C.visit(this, null);
+        ast.E.visit(this, null);
+        writeLineHTML("</LoopUntilDoCommand>");
+        return null;
+    }
+
+    @Override
+    public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
+        writeLineHTML("<LoopDoWhileCommand>");
+        ast.C.visit(this, null);
+        ast.E.visit(this, null);
+        writeLineHTML("</LoopDoWhileCommand>");
+        return null;
+    }
+
+    @Override
+    public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
+        writeLineHTML("<LoopDoUntilCommand>");
+        ast.C.visit(this, null);
+        ast.E.visit(this, null);
+        writeLineHTML("</LoopDoUntilCommand>");
+        return null;
+    }
+
+    @Override
+    public Object visitLoopForCommand(LoopForCommand ast, Object o) {
+        writeLineHTML("<LoopForCommand>");
+        ast.C.visit(this, null);
+        ast.E1.visit(this, null);
+        ast.E2.visit(this, null);
+        ast.I.visit(this, null);
+        writeLineHTML("</LoopForCommand>");
+        return null;
+    }
+
+    @Override
+    public Object visitSkipCommand(SkipCommand ast, Object o) {
+        writeLineHTML("<SkipCommand>");
+        return null;
+    }
+
 
 
     // Expressions
@@ -183,6 +247,7 @@ public class WriterVisitor implements Visitor {
         writeLineHTML("</IntegerExpression>");
         return null;
     }
+
 
     public Object visitLetExpression(LetExpression ast, Object obj) {
         writeLineHTML("<LetExpression>");
@@ -283,6 +348,46 @@ public class WriterVisitor implements Visitor {
         ast.I.visit(this, null);
         ast.T.visit(this, null);
         writeLineHTML("</VarDeclaration>");
+        return null;
+    }
+    
+    @Override
+    public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
+        writeLineHTML("<RecursiveDeclaration>");
+        ast.D.visit(this, null);
+        writeLineHTML("</RecursiveDeclaration>");
+        return null;
+    }
+
+    @Override
+    public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
+        writeLineHTML("<LocalDeclaration>");
+        ast.D1.visit(this, null);
+        ast.D2.visit(this, null);
+        writeLineHTML("</LocalDeclaration>");
+        return null;
+    }
+
+    @Override
+    public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
+        writeLineHTML("<ProcFuncDeclaration>");
+        if (ast.D2 == null) {
+            ast.D1.visit(this, null);
+        }
+        else {
+            ast.D1.visit(this, null);
+            ast.D2.visit(this, null);
+        }
+        writeLineHTML("</ProcFuncDeclaration>");
+        return null;
+    }
+
+    @Override
+    public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
+        writeLineHTML("<VarInitDeclaration>");
+        ast.E.visit(this, null);
+        ast.I.visit(this, null);
+        writeLineHTML("</VarInitDeclaration>");
         return null;
     }
 
