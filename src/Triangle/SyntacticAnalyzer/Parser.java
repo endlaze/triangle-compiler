@@ -260,6 +260,7 @@ public class Parser {
 // to represent its phrase structure.
 
   Command parseCommand() throws SyntaxError {
+    System.out.println("Command parsed, end required upnext");
     Command commandAST = null; // in case there's a syntactic error
 
     SourcePosition commandPos = new SourcePosition();
@@ -312,10 +313,13 @@ public class Parser {
 
     case Token.LET:
       {
+        System.out.println("Command parsed, end required upnext");
         acceptIt();
         Declaration dAST = parseDeclaration();
         accept(Token.IN);
         Command cAST = parseCommand();  // Modificar a command
+        System.out.println("Command parsed, end required upnext");
+        accept(Token.END);
         finish(commandPos);
         commandAST = new LetCommand(dAST, cAST, commandPos);
       }
@@ -413,14 +417,14 @@ public class Parser {
       }
       break;
 
-    case Token.SEMICOLON:
-    case Token.END:
-    case Token.ELSE:
-    case Token.IN:
+    //case Token.SEMICOLON:
+    //case Token.END:
+    //case Token.ELSE:
+    //case Token.IN:
     case Token.EOT:
 
       finish(commandPos);
-      commandAST = new EmptyCommand(commandPos);
+      commandAST = new SkipCommand(commandPos);
       break;
 
     default:
