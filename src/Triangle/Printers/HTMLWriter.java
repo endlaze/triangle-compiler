@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 /**
@@ -21,6 +22,7 @@ import java.util.HashSet;
  * @author diesv
  */
 public class HTMLWriter {
+
     private String fileName;
     private String output;
 // <editor-fold defaultstate="collapsed" desc="Reserved Words">    
@@ -61,29 +63,80 @@ public class HTMLWriter {
         this.fileName = fileName;
         this.output = fileName.substring(0, fileName.length() - 4) + ".html";
     }
-    
+
     private void writeHTML(FileWriter fileWriter) {
-        
+
         String line;
-        
+
         try {
             InputStream fis = new FileInputStream(fileName);
             InputStreamReader isr = new InputStreamReader(fis, Charset.forName("UTF-8"));
             BufferedReader br = new BufferedReader(isr);
             while ((line = br.readLine()) != null) {
-                
+                fileWriter.write(printLine(line) + "\n");
             }
         } catch (Exception e) {
-            
+            System.out.println(e.getMessage());
+
         }
-                
-        
-        
+
+    }
+
+    private String printLine(String line) {
+        boolean commentFlag = false;
+        String[] lineTokens = line.split(" ");
+        String comment = "";
+        String createdLine = "<p>";
+        int tabs = (int) line.chars().filter(ch -> ch == '\t').count();
+        if (tabs >= 1)
+            createdLine += createdLine + String.join("", Collections.nCopies(tabs, "&emsp;"));
+
+        for (String token : lineTokens) {
+
+            if (token.startsWith("!")) {
+                commentFlag = true;
+            }
+            
+            if (commentFlag) {
+                comment = comment + " " + token;
+            } else {
+
+                if (tokens.contains(token)) {
+                    createdLine += buildResWord(token) + " ";
+                } else if (isInteger(token) || isChar(token)) {
+                    createdLine += buildLiteral(token) + " ";
+                } else {
+                    createdLine += token + " ";
+                }
+
+            }
+        }
+
+        if (commentFlag) {
+            createdLine += buildComment(comment);
+        }
+
+        createdLine += "</p>";
+
+        return createdLine;
+
+    }
+
+    private String buildResWord(String token) {
+        return "<span style=\"font-weight : bold; color: black\">" + token + "</span>" + " ";
+    }
+
+    private String buildLiteral(String token) {
+        return "<span style=\"color: blue\">" + token + "</span>";
+    }
+
+    private String buildComment(String comment) {
+        return "<span style=\"color: green\">" + comment + "</span>";
     }
 
     public void write() {
         try {
-            FileWriter fileWriter = new FileWriter(fileName);
+            FileWriter fileWriter = new FileWriter(output);
 
             fileWriter.write("<!DOCTYPE html>");
             fileWriter.write('\n');
@@ -92,23 +145,21 @@ public class HTMLWriter {
             fileWriter.write("<head>");
             fileWriter.write('\n');
             //File style
-            fileWriter.write("<style>html *{\n" +
-                             "   font-size: 1em !important;\n" +
-                             "   color: #00008B;\n" +
-                             "   font-family: Courier !important;\n" +
-                             "   }</style>");
+            fileWriter.write("<style>html *{\n"
+                    + "   font-size: 1em !important;\n"
+                    + "   color: black;\n"
+                    + "   font-family: Courier !important;\n"
+                    + "   }</style>");
             fileWriter.write('\n');
             fileWriter.write("</head>");
             fileWriter.write('\n');
             fileWriter.write("</body>");
             fileWriter.write('\n');
-            
+
             writeHTML(fileWriter);
-            
+
             fileWriter.write("</body>");
             fileWriter.write("</html>");
-            
-
 
             fileWriter.close();
             System.out.println("HTML file printed");
@@ -117,5 +168,18 @@ public class HTMLWriter {
             System.err.println("Error while creating file for print the AST");
             e.printStackTrace();
         }
+    }
+
+    public boolean isInteger(String token) {
+        try {
+            Integer.parseInt(token);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean isChar(String token) {
+        return token.startsWith("'") && token.endsWith("'") && (token.length() == 3);
     }
 }
