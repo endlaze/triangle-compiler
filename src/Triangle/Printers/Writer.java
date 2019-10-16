@@ -1,4 +1,4 @@
-package Triangle;
+package Triangle.Printers;
 
 import Triangle.AbstractSyntaxTrees.Program;
 
@@ -26,6 +26,7 @@ public class Writer {
             ast.visit(layout, null);
 
             fileWriter.close();
+            System.out.println("XML file printed");
 
         } catch (IOException e) {
             System.err.println("Error while creating file for print the AST");

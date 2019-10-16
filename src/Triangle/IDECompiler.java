@@ -5,6 +5,7 @@
 
 package Triangle;
 
+import Triangle.Printers.Writer;
 import Triangle.CodeGenerator.Frame;
 import java.awt.event.ActionListener;
 import Triangle.SyntacticAnalyzer.SourceFile;
@@ -68,8 +69,12 @@ public class IDECompiler {
             }
         }
 
-        if (success)
+        if (success) {
             System.out.println("Compilation was successful.");
+            Writer XMLWriter = new Writer(sourceName.substring(0, sourceName.length() - 4)+".xml");
+            XMLWriter.write(rootAST);
+        }    
+            
         else
             System.out.println("Compilation was unsuccessful.");
         

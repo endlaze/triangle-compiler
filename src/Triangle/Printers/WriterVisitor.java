@@ -1,4 +1,4 @@
-package Triangle;
+package Triangle.Printers;
 
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
 import Triangle.AbstractSyntaxTrees.ArrayExpression;

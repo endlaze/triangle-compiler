@@ -312,12 +312,10 @@ public class Parser {
 
     case Token.LET: // Modificar let 
       {
-        System.out.println("Command parsed, end required upnext");
         acceptIt();
         Declaration dAST = parseDeclaration();
         accept(Token.IN);
         Command cAST = parseCommand();  // Modificar a command
-        System.out.println("Command parsed, end required upnext");
         accept(Token.END);
         finish(commandPos);
         commandAST = new LetCommand(dAST, cAST, commandPos);
