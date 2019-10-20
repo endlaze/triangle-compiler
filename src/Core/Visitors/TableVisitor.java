@@ -151,6 +151,7 @@ public class TableVisitor implements Visitor {
       return(null);
   }
   
+  // NUEVAS FUNCIONES DE COMANDOS AGREGADOS
   @Override
     public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
        ast.C.visit(this, null);
@@ -191,6 +192,8 @@ public class TableVisitor implements Visitor {
     public Object visitSkipCommand(SkipCommand ast, Object o) {
         return (null);
     }
+    
+    // FIN FUNCIONES DE COMANDOS
   
   // </editor-fold>
 
@@ -361,6 +364,8 @@ public class TableVisitor implements Visitor {
       return(null);
   }
   
+  // NUEVAS FUNCIONES DE DECLARACIONES AGREGADAS
+  
     @Override
     public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
         ast.D.visit(this, null);
@@ -388,7 +393,7 @@ public class TableVisitor implements Visitor {
         ast.I.visit(this, null);
         return (null);
     }
-  
+  // FIN FUNCIONES DE DECLARACIONES
   
   
   // </editor-fold>

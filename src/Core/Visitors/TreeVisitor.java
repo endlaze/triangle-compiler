@@ -126,6 +126,8 @@ public class TreeVisitor implements Visitor {
         return(createBinary("While Command", ast.E, ast.C));
     }
     
+    // NUEVAS FUNCIONES PARA IMPRIMIR COMANDOS EN EL IDE
+    
     @Override
     public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
         return (createBinary("LoopWhile Command",ast.C, ast.E));
@@ -155,6 +157,7 @@ public class TreeVisitor implements Visitor {
     public Object visitSkipCommand(SkipCommand ast, Object o) {
         return (createNullary("Skip Command"));
     }
+    // FIN FUNCIONES AGREGADAS
     
     // </editor-fold>
     
@@ -239,6 +242,8 @@ public class TreeVisitor implements Visitor {
         return(createBinary("Variable Declaration", ast.I, ast.T));
     }
     
+    // NUEVAS FUNCIONES PARA IMPRIMIR DECLARACIONES EN EL IDE
+    
     @Override
     public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
         return (createUnary("Recursive Declaration",ast.D));
@@ -246,16 +251,7 @@ public class TreeVisitor implements Visitor {
 
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
-        String caption = "ProcFunc Declaration";
-        DefaultMutableTreeNode mutableTreeNode;
-        
-       if (ast.D2 == null){
-           mutableTreeNode = createUnary(caption, ast.D1);
-       } else {
-           mutableTreeNode = createBinary(caption, ast.D1, ast.D2);
-       }
-       
-       return (mutableTreeNode);
+       return (createBinary("ProcFunc Declaration", ast.D1, ast.D2));
     }
 
     @Override
@@ -267,6 +263,8 @@ public class TreeVisitor implements Visitor {
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
         return (createBinary("Local Declaration", ast.D1, ast.D2));
     }
+    
+    // FIN FUNCIONES AGREGADAS
     // </editor-fold>
     
     // <editor-fold defaultstate="collapsed" desc=" Aggregates ">
