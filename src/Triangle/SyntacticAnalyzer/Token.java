@@ -67,31 +67,31 @@ final class Token extends Object {
     OPERATOR	= 3,
 
     // reserved words - must be in alphabetical order...
-    AND                 = 4, //new
+    AND                 = 4, // Nuevo indice
     ARRAY		= 5,
-//    BEGIN		= 5,
+//    BEGIN		= 5, // Indice eliminado
     CONST		= 6,
     DO			= 7,
     ELSE		= 8,
     END			= 9,
-    FOR                 = 10, //new
+    FOR                 = 10, // Nuevo indice
     FUNC		= 11,
     IF			= 12,
     IN			= 13,
-    INIT                = 14, //new
+    INIT                = 14, // Nuevo indice
     LET		        = 15,
-    LOCAL               = 16, //new
-    LOOP                = 17, //new
+    LOCAL               = 16, // Nuevo indice
+    LOOP                = 17, // Nuevo indice
     OF			= 18,
     PROC		= 19,
     RECORD		= 20,
-    RECURSIVE           = 21, //new
-    REPEAT              = 22, //new
-    SKIP                = 23, //new
+    RECURSIVE           = 21, // Nuevo indice
+    REPEAT              = 22, // Nuevo indice
+    SKIP                = 23, // Nuevo indice
     THEN		= 24,
-    TO                  = 25, //new
+    TO                  = 25, // Nuevo indice
     TYPE		= 26,
-    UNTIL               = 27, //new
+    UNTIL               = 27, // Nuevo indice
     VAR			= 28,
     WHILE		= 29,
 
@@ -112,7 +112,7 @@ final class Token extends Object {
     RCURLY		= 41,
 
     // special tokens...
-    EOT			= 42, //new
+    EOT			= 42,
     ERROR		= 43;
 
   private static String[] tokenTable = new String[] {
@@ -122,29 +122,29 @@ final class Token extends Object {
     "<operator>",
     "and", //new
     "array",
-//    "begin",
+//    "begin", Se elimna 'begin'
     "const",
     "do",
     "else",
     "end",
-    "for", //new
+    "for", // Nueva palabra reservada
     "func",
     "if",
     "in",
-    "init", //new
+    "init", // Nueva palabra reservada
     "let",
-    "local", //new 
-    "loop", //new
+    "local", // Nueva palabra reservada
+    "loop", // Nueva palabra reservada
     "of",
     "proc",
     "record",
-    "recursive", //new
-    "repeat", //new
-    "skip", //new
+    "recursive", // Nueva palabra reservada
+    "repeat", // Nueva palabra reservada
+    "skip", // Nueva palabra reservada
     "then",
-    "to", //new
+    "to", // Nueva palabra reservada
     "type",
-    "until", //new
+    "until", // Nueva palabra reservada
     "var",
     "while",
     ".",
@@ -163,7 +163,6 @@ final class Token extends Object {
     "<error>"
   };
 
-  private final static int	firstReservedWord = Token.ARRAY,
+  private final static int	firstReservedWord = Token.AND,  // Se actualiza el indice de la primera palabra reservada
   				lastReservedWord  = Token.WHILE;
-
 }
