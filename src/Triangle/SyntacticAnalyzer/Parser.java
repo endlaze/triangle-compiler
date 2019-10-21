@@ -357,24 +357,34 @@ public class Parser {
                   }
                   break;
                 
-                case Token.DO:                                           // Se crea -> loop do while repeat
+                case Token.DO:                                                  // Se crea -> loop do while repeat
                   {
                       acceptIt();
-                      Command cAST = parseCommand();                   // Luego del DO debe ir un comando
-                      if (currentToken.kind == Token.WHILE) {         // Caso 1: Se crea -> loop do while repeat
-                        accept(Token.WHILE);
-                        Expression eAST = parseExpression();         // Luego del WHILE debe ir una expresion
-                        accept(Token.REPEAT);                       // Token REPEAT debe ir luego de la expresion
-                        finish(commandPos);
-                        commandAST = new LoopDoWhileCommand(cAST, eAST, commandPos); 
-                      }
-                      else if (currentToken.kind == Token.UNTIL) {        // Caso 2: Se crea -> loop do until repeat
-                          accept(Token.UNTIL);
-                          Expression eAST = parseExpression();           // Luego del UNTIL debe ir una expresion
-                          accept(Token.REPEAT);                         // Token REPEAT debe ir luego de la expresion
-                          finish(commandPos);
-                          commandAST = new LoopDoUntilCommand(cAST, eAST, commandPos);
-                      }
+                      Command cAST = parseCommand();                            // Luego del DO debe ir un comando
+                      
+                      switch (currentToken.kind) {
+                        case Token.WHILE:                                       // Caso 1: Se crea -> loop do while repeat
+                            {
+                                accept(Token.WHILE);
+                                Expression eAST = parseExpression();         // Luego del WHILE debe ir una expresion
+                                accept(Token.REPEAT);                       // Token REPEAT debe ir luego de la expresion
+                                finish(commandPos);
+                                commandAST = new LoopDoWhileCommand(cAST, eAST, commandPos);
+                                break;
+                            }
+                        case Token.UNTIL:                                       // Caso 2: Se crea -> loop do until repeat
+                            {
+                                accept(Token.UNTIL);
+                                Expression eAST = parseExpression();           // Luego del UNTIL debe ir una expresion
+                                accept(Token.REPEAT);                         // Token REPEAT debe ir luego de la expresion
+                                finish(commandPos);
+                                commandAST = new LoopDoUntilCommand(cAST, eAST, commandPos);
+                                break;
+                            }
+                        default:
+                            syntacticError("\"%\" cannot start a loop do", currentToken.spelling);
+                            break;
+                    }
                       
                   }
                   break;
@@ -676,8 +686,8 @@ public class Parser {
     SourcePosition declarationPos = new SourcePosition();
     start(declarationPos);
     declarationAST = parseCompoundDeclaration(); // Se sustituye parseDeclaration por parseCompoundDeclaration
-    while (currentToken.kind == Token.SEMICOLON) { // Repite parseCompoundDeclaration mientras haya multiples declaraciones separadas por ";"
-      acceptIt();
+    while (currentToken.kind == Token.SEMICOLON) { // Repite parseCompoundDeclaration mientras haya multiples
+      acceptIt();                                 //  declaraciones separadas por ";"
       Declaration d2AST = parseCompoundDeclaration(); // Se sustituye parseDeclaration por parseCompoundDeclaration
       finish(declarationPos);
       declarationAST = new SequentialDeclaration(declarationAST, d2AST,
@@ -764,6 +774,7 @@ public class Parser {
                   declarationPos);
             }
             break;
+            
             default:
                 syntacticError("\"%\" cannot start a declaration", currentToken.spelling);
             break;

@@ -251,7 +251,16 @@ public class TreeVisitor implements Visitor {
 
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
-       return (createBinary("ProcFunc Declaration", ast.D1, ast.D2));
+        String caption = "ProcFunc Declaration";
+        DefaultMutableTreeNode mutableTreeNode;
+
+       if (ast.D2 == null){
+           mutableTreeNode = createUnary(caption, ast.D1);
+       } else {
+           mutableTreeNode = createBinary(caption, ast.D1, ast.D2);
+       }
+
+       return (mutableTreeNode);
     }
 
     @Override
