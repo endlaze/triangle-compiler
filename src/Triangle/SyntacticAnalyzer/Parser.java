@@ -402,6 +402,7 @@ public class Parser {
                     accept(Token.REPEAT);
                     finish(commandPos);
                     commandAST = new LoopForCommand(dAST, eAST2, cAST, commandPos);
+                    break;
                 } 
                 default:
                     syntacticError("\"%\" cannot start a loop", currentToken.spelling);
@@ -705,7 +706,7 @@ public class Parser {
       Identifier iAST = parseIdentifier();          // Luego del FOR debe ir un identificador
       accept(Token.IS);                            // Token ~ debe ir luego del identificador
       Expression eAST = parseExpression();        // Luego del ~ debe ir una expresion
-      
+      finish(declarationPos);
       declarationAST = new ForDeclaration(iAST, eAST, declarationPos);
       return declarationAST;
   }

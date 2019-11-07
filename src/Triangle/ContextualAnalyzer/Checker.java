@@ -725,6 +725,12 @@ public final class Checker implements Visitor {
       } else if (binding instanceof VarFormalParameter) {
         ast.type = ((VarFormalParameter) binding).T;
         ast.variable = true;
+      } else if (binding instanceof ForDeclaration) {
+        ast.type = ((ForDeclaration) binding).E.type;
+        ast.variable = false;
+      } else if (binding instanceof VarInitDeclaration) {
+        ast.type = ((VarInitDeclaration) binding).E.type;
+        ast.variable = true;
       } else
         reporter.reportError ("\"%\" is not a const or var identifier",
                               ast.I.spelling, ast.I.position);
@@ -949,16 +955,7 @@ public final class Checker implements Visitor {
     StdEnvironment.unequalDecl = declareStdBinaryOp("\\=", StdEnvironment.anyType, StdEnvironment.anyType, StdEnvironment.booleanType);
 
   }
-  
-  /*
-public Object visitWhileCommand(WhileCommand ast, Object o) {
-    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
-    if (! eType.equals(StdEnvironment.booleanType))
-      reporter.reportError("Boolean expression expected here", "", ast.E.position);
-    ast.C.visit(this, null);
-    return null;
-  }
-*/
+
 
     @Override
     public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
@@ -1010,7 +1007,16 @@ public Object visitWhileCommand(WhileCommand ast, Object o) {
 
     @Override
     public Object visitLoopForCommand(LoopForCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TypeDenoter eType = (TypeDenoter) ast.E2.visit(this, null);                 // Determina el tipo de la expresion
+        if(! eType.equals(StdEnvironment.integerType)){                            // Si la expresión no es entera, reporta el error
+            reporter.reportError("Integer expression expected here", "", ast.E2.position);
+        }
+        idTable.openScope();                                                        // Abre un nuevo scope
+        ast.F.visit(this, null);                                                    // Visita el ForDeclaration
+        ast.C.visit(this, null);                                                    // Visita el comando
+        idTable.closeScope();                                                       // Cierra el scope
+        
+        return null;
     }
 
     @Override
@@ -1035,12 +1041,28 @@ public Object visitWhileCommand(WhileCommand ast, Object o) {
 
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.I.type = (TypeDenoter) ast.E.visit(this, null);
+        idTable.enter (ast.I.spelling, ast);
+        if (ast.duplicated)
+          reporter.reportError ("identifier \"%\" already declared",
+                                ast.I.spelling, ast.position);
+        return null;
     }
 
     @Override
-    public Object visitForDeclaration(ForDeclaration aThis, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Object visitForDeclaration(ForDeclaration ast, Object o) {
+        ast.I.visit(this, null);
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
+        
+        if(! eType.equals(StdEnvironment.integerType)){                            // Si la expresión no es entera, reporta el error
+            reporter.reportError("Integer expression expected here", "", ast.E.position);
+        }
+        
+        idTable.enter (ast.I.spelling, ast); // permits recursion
+        if (ast.duplicated)
+            reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position); 
+        return null;
+        
     }
 }
 
