@@ -26,6 +26,7 @@ import Triangle.AbstractSyntaxTrees.EmptyCommand;
 import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.ErrorTypeDenoter;
+import Triangle.AbstractSyntaxTrees.ForDeclaration;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
 import Triangle.AbstractSyntaxTrees.FuncDeclaration;
 import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
@@ -150,7 +151,7 @@ public class TreeVisitor implements Visitor {
 
     @Override
     public Object visitLoopForCommand(LoopForCommand ast, Object o) {
-        return (createQuaternary("LoopFor Command", ast.C, ast.E1, ast.E2, ast.I));
+        return (createTernary("LoopFor Command", ast.F, ast.E2, ast.C));
     }
 
     @Override
@@ -271,6 +272,11 @@ public class TreeVisitor implements Visitor {
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
         return (createBinary("Local Declaration", ast.D1, ast.D2));
+    }
+    
+    @Override
+    public Object visitForDeclaration(ForDeclaration ast, Object o) {
+        return (createBinary("For Declaration", ast.E, ast.I));
     }
     
     // FIN FUNCIONES AGREGADAS

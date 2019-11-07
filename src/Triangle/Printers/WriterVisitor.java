@@ -21,6 +21,7 @@ import Triangle.AbstractSyntaxTrees.EmptyCommand;
 import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.ErrorTypeDenoter;
+import Triangle.AbstractSyntaxTrees.ForDeclaration;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
 import Triangle.AbstractSyntaxTrees.FuncDeclaration;
 import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
@@ -179,10 +180,9 @@ public class WriterVisitor implements Visitor {
     @Override
     public Object visitLoopForCommand(LoopForCommand ast, Object o) {
         writeLineHTML("<LoopForCommand>");
+        ast.F.visit(this, null);
         ast.C.visit(this, null);
-        ast.E1.visit(this, null);
         ast.E2.visit(this, null);
-        ast.I.visit(this, null);
         writeLineHTML("</LoopForCommand>");
         return null;
     }
@@ -677,6 +677,15 @@ public class WriterVisitor implements Visitor {
             return "&lt;=";
         else
             return operator;
+    }
+
+    @Override
+    public Object visitForDeclaration(ForDeclaration ast, Object o) {
+        writeLineHTML("<ForDeclaration>");
+        ast.I.visit(this, null);
+        ast.E.visit(this, null);
+        writeLineHTML("</ForDeclaration>");
+        return null;
     }
 
 }

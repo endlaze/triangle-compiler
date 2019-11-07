@@ -59,6 +59,8 @@ public interface Visitor {
   public abstract Object visitLocalDeclaration(LocalDeclaration ast, Object o);
   public abstract Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o);
   public abstract Object visitVarInitDeclaration(VarInitDeclaration ast, Object o);
+  public abstract Object visitForDeclaration(ForDeclaration ast, Object o);
+  
 
   // Array Aggregates
   public abstract Object visitMultipleArrayAggregate(MultipleArrayAggregate ast, Object o);

@@ -37,6 +37,7 @@ import Triangle.AbstractSyntaxTrees.EmptyCommand; // AST del EmptyCommand ya no 
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.Expression;
 import Triangle.AbstractSyntaxTrees.FieldTypeDenoter;
+import Triangle.AbstractSyntaxTrees.ForDeclaration;
 import Triangle.AbstractSyntaxTrees.FormalParameter;
 import Triangle.AbstractSyntaxTrees.FormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
@@ -273,6 +274,7 @@ public class Parser {
     }
     return commandAST;
   }
+  
 
    /// FUNCION MODIFICADA \\\
   Command parseSingleCommand() throws SyntaxError {
@@ -392,16 +394,14 @@ public class Parser {
                 case Token.FOR: // Se crea -> loop for ~ to do repeat
                 {
                     acceptIt();
-                    Identifier iAST = parseIdentifier();          // Luego del FOR debe ir un identificador
-                    accept(Token.IS);                            // Token ~ debe ir luego del identificador
-                    Expression eAST = parseExpression();        // Luego del ~ debe ir una expresion
+                    Declaration dAST = parseForDeclaration();
                     accept(Token.TO);                          // Token TO debe ir luego de la expresion
                     Expression eAST2 = parseExpression();     // Luego del TO debe ir un una expresion
                     accept(Token.DO);                        // Token DO debe ir luego de la expresion
                     Command cAST = parseCommand();
                     accept(Token.REPEAT);
                     finish(commandPos);
-                    commandAST = new LoopForCommand(iAST, eAST, eAST2, cAST, commandPos);
+                    commandAST = new LoopForCommand(dAST, eAST2, cAST, commandPos);
                 } 
                 default:
                     syntacticError("\"%\" cannot start a loop", currentToken.spelling);
@@ -696,6 +696,20 @@ public class Parser {
     return declarationAST;
   }
   
+  // FUNCION CREADA \\
+  Declaration parseForDeclaration() throws SyntaxError {
+      Declaration declarationAST = null; // in case there's a syntactic error
+      SourcePosition declarationPos = new SourcePosition();
+      start(declarationPos);
+      
+      Identifier iAST = parseIdentifier();          // Luego del FOR debe ir un identificador
+      accept(Token.IS);                            // Token ~ debe ir luego del identificador
+      Expression eAST = parseExpression();        // Luego del ~ debe ir una expresion
+      
+      declarationAST = new ForDeclaration(iAST, eAST, declarationPos);
+      return declarationAST;
+  }
+  
  /// FUNCION CREADA \\\
   
   Declaration parseCompoundDeclaration() throws SyntaxError {
@@ -790,11 +804,11 @@ public class Parser {
       SourcePosition declarationPos = new SourcePosition();
       start(declarationPos);
       
-      Declaration pfAST = parseProcFunc();                                      // Primero debe ir un ProcFunc
+      Declaration pfAST = parseProcFunc();                  // Primero debe ir un ProcFunc
       
-        do {                                                                   // El código dentro del "do" se ejecuta al menos una vez
-            accept(Token.AND);                                                // Token "and" debe ir luego del ProcFunc
-            Declaration p2fAST = parseProcFunc();                            // Luego del token "and" debe ir un ProcFunc
+        do {                                               // El código dentro del "do" se ejecuta al menos una vez
+            accept(Token.AND);                            // Token "and" debe ir luego del ProcFunc
+            Declaration p2fAST = parseProcFunc();        // Luego del token "and" debe ir un ProcFunc
             finish(declarationPos);
             declarationAST = new ProcFuncDeclaration(pfAST, p2fAST, declarationPos ); 
 }

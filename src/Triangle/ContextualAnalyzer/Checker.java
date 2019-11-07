@@ -39,6 +39,7 @@ import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.ErrorTypeDenoter;
 import Triangle.AbstractSyntaxTrees.FieldTypeDenoter;
+import Triangle.AbstractSyntaxTrees.ForDeclaration;
 import Triangle.AbstractSyntaxTrees.FormalParameter;
 import Triangle.AbstractSyntaxTrees.FormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
@@ -948,25 +949,63 @@ public final class Checker implements Visitor {
     StdEnvironment.unequalDecl = declareStdBinaryOp("\\=", StdEnvironment.anyType, StdEnvironment.anyType, StdEnvironment.booleanType);
 
   }
+  
+  /*
+public Object visitWhileCommand(WhileCommand ast, Object o) {
+    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+    if (! eType.equals(StdEnvironment.booleanType))
+      reporter.reportError("Boolean expression expected here", "", ast.E.position);
+    ast.C.visit(this, null);
+    return null;
+  }
+*/
 
     @Override
     public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                      // Determina el tipo de la expresion
+        if(! eType.equals(StdEnvironment.booleanType)){                                // Si no es una expresión booleana reporta el error
+            reporter.reportError("Boolean expression expected here", "", ast.E.position);
+        }
+        ast.C.visit(this, null);                                                      // Si la expresión es booleana, se visita el comando
+        return null;
     }
 
     @Override
     public Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                      // Determina el tipo de la expresion
+        
+        if(! eType.equals(StdEnvironment.booleanType)){                                // Si no es una expresión booleana, reporta el error
+            reporter.reportError("Boolean expression expected here", "", ast.E.position);
+        }
+        
+        ast.C.visit(this, null);                                                      // Si la expresión es booleana, se visita el comando
+        return null;
     }
 
     @Override
     public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.C.visit(this, null);                                                    // Se visita el comando
+        
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
+        
+        if(! eType.equals(StdEnvironment.booleanType)){                            // Si la expresión no es booleana, reporta el error
+            reporter.reportError("Boolean expression expected here", "", ast.E.position);
+        }
+        
+        return null;
     }
 
     @Override
     public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.C.visit(this, null);                                                    // Se visita el comando
+        
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
+        
+        if(! eType.equals(StdEnvironment.booleanType)){                            // Si la expresión no es booleana, reporta el error
+            reporter.reportError("Boolean expression expected here", "", ast.E.position);
+        }
+        
+        return null;
     }
 
     @Override
@@ -976,7 +1015,7 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitSkipCommand(SkipCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return null;
     }
 
     @Override
@@ -998,4 +1037,10 @@ public final class Checker implements Visitor {
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+
+    @Override
+    public Object visitForDeclaration(ForDeclaration aThis, Object o) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
 }
+

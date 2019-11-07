@@ -26,6 +26,7 @@ import Triangle.AbstractSyntaxTrees.EmptyCommand;
 import Triangle.AbstractSyntaxTrees.EmptyExpression;
 import Triangle.AbstractSyntaxTrees.EmptyFormalParameterSequence;
 import Triangle.AbstractSyntaxTrees.ErrorTypeDenoter;
+import Triangle.AbstractSyntaxTrees.ForDeclaration;
 import Triangle.AbstractSyntaxTrees.FuncActualParameter;
 import Triangle.AbstractSyntaxTrees.FuncDeclaration;
 import Triangle.AbstractSyntaxTrees.FuncFormalParameter;
@@ -181,10 +182,10 @@ public class TableVisitor implements Visitor {
 
     @Override
     public Object visitLoopForCommand(LoopForCommand ast, Object o) {
-        ast.C.visit(this, null);
-        ast.E1.visit(this, null);
+        ast.F.visit(this, null);
         ast.E2.visit(this, null);
-        ast.I.visit(this, null);
+        ast.C.visit(this, null);
+       
        return (null);
     }
 
@@ -389,6 +390,13 @@ public class TableVisitor implements Visitor {
 
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
+        ast.E.visit(this, null);
+        ast.I.visit(this, null);
+        return (null);
+    }
+    
+    @Override
+    public Object visitForDeclaration(ForDeclaration ast, Object o) {
         ast.E.visit(this, null);
         ast.I.visit(this, null);
         return (null);
