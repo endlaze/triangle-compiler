@@ -1021,7 +1021,7 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitSkipCommand(SkipCommand ast, Object o) {
-        return null;
+        return null; // Retorna nulo porque no hace nada
     }
 
     @Override
@@ -1031,9 +1031,21 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        idTable.openScope();
+        ast.D1.visit(this, null);
+        idTable.updateIsDecLocal();
+        ast.D2.visit(this, null);
+        idTable.updateIsDecLocal();
+        idTable.closeScope();
+        return null;
     }
-
+/*
+    public Object visitSequentialDeclaration(SequentialDeclaration ast, Object o) {
+    ast.D1.visit(this, null);
+    ast.D2.visit(this, null);
+    return null;
+  }
+    */
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -1051,15 +1063,15 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitForDeclaration(ForDeclaration ast, Object o) {
-        ast.I.visit(this, null);
+        ast.I.visit(this, null);                                                    
         TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
         
         if(! eType.equals(StdEnvironment.integerType)){                            // Si la expresión no es entera, reporta el error
             reporter.reportError("Integer expression expected here", "", ast.E.position);
         }
         
-        idTable.enter (ast.I.spelling, ast); // permits recursion
-        if (ast.duplicated)
+        idTable.enter (ast.I.spelling, ast);                                       // Introduce el identificador de la variable de control en la tabla de identificacion
+        if (ast.duplicated)                                                        // Si el identificador existe, reporta el error
             reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position); 
         return null;
         

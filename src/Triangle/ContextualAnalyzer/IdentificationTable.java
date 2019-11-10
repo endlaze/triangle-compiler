@@ -20,10 +20,12 @@ public final class IdentificationTable {
 
   private int level;
   private IdEntry latest;
+  private boolean isDecLocal;
 
   public IdentificationTable () {
     level = 0;
     latest = null;
+    isDecLocal = false;
   }
 
   // Opens a new level in the identification table, 1 higher than the
@@ -58,25 +60,83 @@ public final class IdentificationTable {
 
   public void enter (String id, Declaration attr) {
 
-    IdEntry entry = this.latest;
-    boolean present = false, searching = true;
+    IdEntry entry = this.latest, currentEntry = this.latest;
+    boolean present = false, searching = true, ins = true;
+    
+    
+    if(this.isDecLocal) {
+         // Check for duplicate entry ...
+        while (searching) {
+          if (entry == null || entry.level < this.level -1)
+            searching = false;
+          else if (entry.id.equals(id)) {
+            present = true;
+            searching = false;
+           } else
+           entry = entry.previous;
+        }
+        
+        while (ins) {
+            
+          if (currentEntry.previous.level == (this.level - 1)) {
+            ins = false;
+            
+            IdEntry newEntry = new IdEntry(id, attr, this.level, currentEntry.previous);
+            currentEntry.previous = newEntry;
+          }
+          
+         
+          currentEntry = currentEntry.previous;
+        }
 
-    // Check for duplicate entry ...
-    while (searching) {
-      if (entry == null || entry.level < this.level)
-        searching = false;
-      else if (entry.id.equals(id)) {
-        present = true;
-        searching = false;
-       } else
-       entry = entry.previous;
+    } 
+    else {
+        // Check for duplicate entry ...
+        while (searching) {
+          if (entry == null || entry.level < this.level)
+            searching = false;
+          else if (entry.id.equals(id)) {
+            present = true;
+            searching = false;
+           } else
+           entry = entry.previous;
+        }
+
+        attr.duplicated = present;
+        
+        entry = new IdEntry(id, attr, this.level, this.latest);
+        this.latest = entry;
     }
-
-    attr.duplicated = present;
-    // Add new entry ...
-    entry = new IdEntry(id, attr, this.level, this.latest);
-    this.latest = entry;
   }
+  
+  
+  
+//  public void enter (String id, Declaration attr) {
+//
+//    IdEntry entry = this.latest;
+//    boolean present = false, searching = true;
+//
+//    // Check for duplicate entry ...
+//    while (searching) {
+//      if (entry == null || entry.level < this.level)
+//        searching = false;
+//      else if (entry.id.equals(id)) {
+//        present = true;
+//        searching = false;
+//       } else
+//       entry = entry.previous;
+//    }
+//
+//    attr.duplicated = present;
+//    // Add new entry ...
+//    if(this.isDecLocal) {
+//      entry = new IdEntry(id, attr, this.level - 1, this.latest);
+//    }
+//    else {
+//        entry = new IdEntry(id, attr, this.level, this.latest);
+//    }
+//    this.latest = entry;
+//  }
 
   // Finds an entry for the given identifier in the identification table,
   // if any. If there are several entries for that identifier, finds the
@@ -103,6 +163,10 @@ public final class IdentificationTable {
     }
 
     return attr;
+  }
+  
+  public void updateIsDecLocal() {
+      this.isDecLocal = !this.isDecLocal;
   }
 
 }
