@@ -14,6 +14,7 @@
 
 package Triangle.ContextualAnalyzer;
 
+import Triangle.AbstractSyntaxTrees.AST;
 import Triangle.ErrorReporter;
 import Triangle.StdEnvironment;
 import Triangle.AbstractSyntaxTrees.AnyTypeDenoter;
@@ -97,9 +98,64 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
 import Triangle.SyntacticAnalyzer.SourcePosition;
+import java.util.ArrayList;
 
 public final class Checker implements Visitor {
+    private ArrayList<AST> recursiveASTs = new ArrayList<AST>();
+    private boolean isRecursiveDeclaration = false;
+    
+    private void updateIsRecursive() {
+      this.isRecursiveDeclaration = !this.isRecursiveDeclaration;
+    }
+    private void visitRecursiveBody() {
+        for(AST ast : recursiveASTs){                                           // Visita todos los AST de la lista de declaraciones recursivas
+            if(ast instanceof ProcDeclaration) {                                // Descrimina los Procs de los Func
+                idTable.openScope();                                            // Abre el scope de proc
+                ProcDeclaration proc = (ProcDeclaration) ast;                   // Realiza un casteo de AST a Proc
+                proc.FPS.visit(this, null);                                     // Visita los FPS para pushearlos a la idTable y queden locales en el proc
+                proc.C.visit(this, null);                                       // Visita el comando con los FPS pusheados en la tabla
+                idTable.closeScope();                                           // Cierra el scope de proc
+                ast = proc;
+            }
+            else {
+                idTable.openScope();                                            // Abre scope de func
+                FuncDeclaration func = (FuncDeclaration) ast;                   // Realiza un casteo de AST a Proc
+                func.FPS.visit(this, null);                                     // Visita los FPS para pushearlos a la idTable y queden locales en el proc
+                TypeDenoter eType = (TypeDenoter) func.E.visit(this, null);     // Visita la expresion y obtiene el tipo
+                if (! func.T.equals(eType))                                     // Verifica el correcto uso de la expresion en la funcion
+                  reporter.reportError ("body of function \"%\" has wrong type",
+                                        func.I.spelling, func.E.position);
+                idTable.closeScope();                                           // Cierra el scope de func
+                ast = func;
 
+            }
+        }
+    }
+     private void visitRecursiveFPS() {
+        for(AST ast : recursiveASTs){                           // Visita todos los AST de la lista de declaraciones recursivas
+            if(ast instanceof ProcDeclaration) {                // Descrimina los Procs de los Func
+                ProcDeclaration proc = (ProcDeclaration) ast;   // Realiza un casteo de AST a Proc
+                idTable.openScope();                            
+                proc.FPS.visit(this, null);                     // Revisa y define tipos los FPS
+                idTable.closeScope();                           // No interesa que los FPS sigan existiendo. Se cierra el scope
+                ast = proc;
+            }
+            else {
+                FuncDeclaration func = (FuncDeclaration) ast;   //Realiza un casteo de AST a Func
+                idTable.openScope();                            
+                func.FPS.visit(this, null);                     // Revisa y define tipos los FPS
+                idTable.closeScope();                           // No interesa que los FPS sigan existiendo. Se cierra el scope
+                ast = func;
+
+            }
+        }
+        this.visitRecursiveBody();                              // Una vez procesados y definidos los tipos de los FPS, es hora de procesar el cuerpo de
+    }                                                           // todos los AST recursivos. Asi, el compilador sabe el tipo de los FPS a la hora de checkear una funcion recursiva.
+
+    private void cleanRecursiveArray() {
+        this.recursiveASTs = new ArrayList<AST>();
+    }
+    
   // Commands
 
   // Always returns null. Does not use the given object.
@@ -309,29 +365,45 @@ public final class Checker implements Visitor {
 
   public Object visitFuncDeclaration(FuncDeclaration ast, Object o) {
     ast.T = (TypeDenoter) ast.T.visit(this, null);
-    idTable.enter (ast.I.spelling, ast); // permits recursion
+    idTable.enter (ast.I.spelling, ast);
     if (ast.duplicated)
       reporter.reportError ("identifier \"%\" already declared",
                             ast.I.spelling, ast.position);
-    idTable.openScope();
-    ast.FPS.visit(this, null);
-    TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
-    idTable.closeScope();
-    if (! ast.T.equals(eType))
-      reporter.reportError ("body of function \"%\" has wrong type",
-                            ast.I.spelling, ast.E.position);
+    
+    if (this.isRecursiveDeclaration) {                                          // Si es una declaracion recursiva, solo interesa conocer el nombre de las declaraciones
+        this.recursiveASTs.add(ast);                                            // por lo que se agrega el AST a una lista para posteriormente procesar los FPS y cuerpo
+    }                                                                           
+    else {                                                                      // Si no es una declaracion recursiva, continua con el procesado normal de la declaracion
+        idTable.openScope();
+        ast.FPS.visit(this, null);
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+        if (! ast.T.equals(eType))
+          reporter.reportError ("body of function \"%\" has wrong type",
+                                ast.I.spelling, ast.E.position);
+        idTable.closeScope();
+    }
+    
     return null;
   }
 
   public Object visitProcDeclaration(ProcDeclaration ast, Object o) {
-    idTable.enter (ast.I.spelling, ast); // permits recursion
+    idTable.enter (ast.I.spelling, ast);
+    
     if (ast.duplicated)
       reporter.reportError ("identifier \"%\" already declared",
                             ast.I.spelling, ast.position);
-    idTable.openScope();
-    ast.FPS.visit(this, null);
-    ast.C.visit(this, null);
-    idTable.closeScope();
+    
+    if (this.isRecursiveDeclaration) {                                          // Si es una declaracion recursiva, solo interesa conocer el nombre de las declaraciones
+        this.recursiveASTs.add(ast);                                            // por lo que se agrega el AST a una lista para posteriormente procesar los FPS y cuerpo
+    }
+    else {                                                                      // Si no es una declaracion recursiva, continua con el procesado normal de la declaracion
+        idTable.openScope();
+        ast.FPS.visit(this, null);
+        ast.C.visit(this, null);
+        idTable.closeScope();
+    }
+    
+    
     return null;
   }
 
@@ -1026,29 +1098,31 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        this.updateIsRecursive();                                               // Setea la bandera de recursion a activo
+        ast.D.visit(this, null);                                                // Visita las declaraciones
+        this.updateIsRecursive();                                               // Setea la bandera de recursion a desactivada
+        this.visitRecursiveFPS();                                               // Procesa todos los FPS de los proc/func's primero, para inmediatamente procesar el cuerpo de todos
+        this.cleanRecursiveArray();                                             // Limpia la lista de proc/funcs
+        return null;
     }
 
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
         idTable.openScope();
         ast.D1.visit(this, null);
-        idTable.updateIsDecLocal();
+        idTable.updateIsDecLocal(); // Indica el inicio de declaraciones que poseen variables locales asociadas
         ast.D2.visit(this, null);
-        idTable.updateIsDecLocal();
+        idTable.updateIsDecLocal(); // Indicia el fin del scope de las variables locales
         idTable.closeScope();
         return null;
     }
-/*
-    public Object visitSequentialDeclaration(SequentialDeclaration ast, Object o) {
-    ast.D1.visit(this, null);
-    ast.D2.visit(this, null);
-    return null;
-  }
-    */
+
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        ast.D1.visit(this, null);
+        if(ast.D2 != null)            // Visita la segunda declaracion si esta existe
+            ast.D2.visit(this, null);
+        return null;
     }
 
     @Override

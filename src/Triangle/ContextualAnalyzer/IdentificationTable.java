@@ -64,7 +64,7 @@ public final class IdentificationTable {
     boolean present = false, searching = true, ins = true;
     
     
-    if(this.isDecLocal) {
+    if(this.isDecLocal) {                                                       // Declaraciones con variables locales asociadas
          // Check for duplicate entry ...
         while (searching) {
           if (entry == null || entry.level < this.level -1)
@@ -75,21 +75,17 @@ public final class IdentificationTable {
            } else
            entry = entry.previous;
         }
+        attr.duplicated = present;
         
         while (ins) {
-            
-          if (currentEntry.previous.level == (this.level - 1)) {
-            ins = false;
-            
-            IdEntry newEntry = new IdEntry(id, attr, this.level, currentEntry.previous);
+          if (currentEntry.previous == null || currentEntry.previous.level == (this.level - 1)) { // Si encuentra un nivel menor a las variables locales, las inserta en un nivel mas bajo que
+            ins = false;                                                                          // las variables locales
+            IdEntry newEntry = new IdEntry(id, attr, this.level, currentEntry.previous);          // Reordena la lista enlazada de ID
             currentEntry.previous = newEntry;
           }
-          
-         
           currentEntry = currentEntry.previous;
         }
-
-    } 
+    }
     else {
         // Check for duplicate entry ...
         while (searching) {
@@ -108,35 +104,6 @@ public final class IdentificationTable {
         this.latest = entry;
     }
   }
-  
-  
-  
-//  public void enter (String id, Declaration attr) {
-//
-//    IdEntry entry = this.latest;
-//    boolean present = false, searching = true;
-//
-//    // Check for duplicate entry ...
-//    while (searching) {
-//      if (entry == null || entry.level < this.level)
-//        searching = false;
-//      else if (entry.id.equals(id)) {
-//        present = true;
-//        searching = false;
-//       } else
-//       entry = entry.previous;
-//    }
-//
-//    attr.duplicated = present;
-//    // Add new entry ...
-//    if(this.isDecLocal) {
-//      entry = new IdEntry(id, attr, this.level - 1, this.latest);
-//    }
-//    else {
-//        entry = new IdEntry(id, attr, this.level, this.latest);
-//    }
-//    this.latest = entry;
-//  }
 
   // Finds an entry for the given identifier in the identification table,
   // if any. If there are several entries for that identifier, finds the
