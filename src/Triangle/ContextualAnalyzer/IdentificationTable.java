@@ -15,17 +15,21 @@
 package Triangle.ContextualAnalyzer;
 
 import Triangle.AbstractSyntaxTrees.Declaration;
+import java.util.ArrayList;
 
 public final class IdentificationTable {
 
   private int level;
   private IdEntry latest;
   private boolean isDecLocal;
-
+  private boolean isDecLocalFinished;
+  private ArrayList<LinkObject> linkObjStack = new ArrayList<LinkObject>();
+  
   public IdentificationTable () {
     level = 0;
     latest = null;
     isDecLocal = false;
+    isDecLocalFinished = true;
   }
 
   // Opens a new level in the identification table, 1 higher than the
@@ -60,48 +64,29 @@ public final class IdentificationTable {
 
   public void enter (String id, Declaration attr) {
 
-    IdEntry entry = this.latest, currentEntry = this.latest;
-    boolean present = false, searching = true, ins = true;
-    
-    
-    if(this.isDecLocal) {                                                       // Declaraciones con variables locales asociadas
-         // Check for duplicate entry ...
-        while (searching) {
-          if (entry == null || entry.level < this.level -1)
-            searching = false;
-          else if (entry.id.equals(id)) {
-            present = true;
-            searching = false;
-           } else
-           entry = entry.previous;
-        }
-        attr.duplicated = present;
-        
-        while (ins) {
-          if (currentEntry.previous == null || currentEntry.previous.level == (this.level - 1)) { // Si encuentra un nivel menor a las variables locales, las inserta en un nivel mas bajo que
-            ins = false;                                                                          // las variables locales
-            IdEntry newEntry = new IdEntry(id, attr, this.level, currentEntry.previous);          // Reordena la lista enlazada de ID
-            currentEntry.previous = newEntry;
-          }
-          currentEntry = currentEntry.previous;
-        }
-    }
-    else {
-        // Check for duplicate entry ...
-        while (searching) {
-          if (entry == null || entry.level < this.level)
-            searching = false;
-          else if (entry.id.equals(id)) {
-            present = true;
-            searching = false;
-           } else
-           entry = entry.previous;
-        }
+    IdEntry entry = this.latest;
+    boolean present = false, searching = true;
 
-        attr.duplicated = present;
-        
-        entry = new IdEntry(id, attr, this.level, this.latest);
-        this.latest = entry;
+    // Check for duplicate entry ...
+    while (searching) {
+      if (entry == null || entry.level < this.level)
+        searching = false;
+      else if (entry.id.equals(id)) {
+        present = true;
+        searching = false;
+       } else
+       entry = entry.previous;
+    }
+
+    attr.duplicated = present;
+    // Add new entry ...
+    entry = new IdEntry(id, attr, this.level, this.latest);
+    
+    this.latest = entry;
+    
+    if(!this.isDecLocal && !this.isDecLocalFinished) {
+        this.getTopLocalDeclaration().setFirstNormDecAfterLocal(this.latest); // Agrega la primera declaracion no local al LinkObject luego de las declaraciones locales
+        this.updateIsDecLocalFinished();
     }
   }
 
@@ -132,8 +117,33 @@ public final class IdentificationTable {
     return attr;
   }
   
-  public void updateIsDecLocal() {
-      this.isDecLocal = !this.isDecLocal;
+  private void updateIsDecLocal() { // Actualiza la variable para manejar declaraciones locales
+     this.isDecLocal = !this.isDecLocal;
   }
+  
+  private void updateIsDecLocalFinished() { // Actualiza la variable para indicar que las variables 
+      this.isDecLocalFinished = !this. isDecLocalFinished;
+  }
+  
+  private LinkObject getTopLocalDeclaration() { // Obtiene el tope de la pila de LinkObjects
+      return this.linkObjStack.get((this.linkObjStack.size()-1));
+  }
+  
+  public void beginLocalDeclarations() { 
+      this.linkObjStack.add(new LinkObject(this.latest)); // Agrega la ultima declaracion no local al LinkObject
+      this.updateIsDecLocal(); // Indica que las siguientes declaraciones van a ser locales
+      this.updateIsDecLocalFinished(); // Indica que las declaraciones locales no han finalizado
+  }
+  
+  public void endLocalDeclarations () {
+    this.updateIsDecLocal(); // Indica que las siguientes declaraciones deben ser normales
+  }
+  
+  public void popLinkObject() {
+      this.getTopLocalDeclaration().linkNormalDeclarations(); // Actualiza los punteros de las declaraciones
+      this.linkObjStack.remove((this.linkObjStack.size()-1)); // Remueve el LinkObject del tope de la pila
+  }
+ 
+  
 
 }

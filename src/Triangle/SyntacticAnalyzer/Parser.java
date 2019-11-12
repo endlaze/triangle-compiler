@@ -703,9 +703,9 @@ public class Parser {
       SourcePosition declarationPos = new SourcePosition();
       start(declarationPos);
       
-      Identifier iAST = parseIdentifier();          // Luego del FOR debe ir un identificador
-      accept(Token.IS);                            // Token ~ debe ir luego del identificador
-      Expression eAST = parseExpression();        // Luego del ~ debe ir una expresion
+      Identifier iAST = parseIdentifier();    // Luego del FOR debe ir un identificador
+      accept(Token.IS);                      // Token ~ debe ir luego del identificador
+      Expression eAST = parseExpression();  // Luego del ~ debe ir una expresion
       finish(declarationPos);
       declarationAST = new ForDeclaration(iAST, eAST, declarationPos);
       return declarationAST;
