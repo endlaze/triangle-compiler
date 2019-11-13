@@ -1033,33 +1033,35 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
-        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                      // Determina el tipo de la expresion
-        if(! eType.equals(StdEnvironment.booleanType)){                                // Si no es una expresión booleana reporta el error
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);      // Determina el tipo de la expresion
+        
+        if(! eType.equals(StdEnvironment.booleanType)){                // Si no es una expresiï¿½n booleana reporta el error
             reporter.reportError("Boolean expression expected here", "", ast.E.position);
         }
-        ast.C.visit(this, null);                                                      // Si la expresión es booleana, se visita el comando
+        
+        ast.C.visit(this, null);                                      // Si la expresiï¿½n es booleana, se visita el comando
         return null;
     }
 
     @Override
     public Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o) {
-        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                      // Determina el tipo de la expresion
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);     // Determina el tipo de la expresion
         
-        if(! eType.equals(StdEnvironment.booleanType)){                                // Si no es una expresión booleana, reporta el error
+        if(! eType.equals(StdEnvironment.booleanType)){               // Si no es una expresiï¿½n booleana, reporta el error
             reporter.reportError("Boolean expression expected here", "", ast.E.position);
         }
         
-        ast.C.visit(this, null);                                                      // Si la expresión es booleana, se visita el comando
+        ast.C.visit(this, null);                                    // Si la expresiï¿½n es booleana, se visita el comando
         return null;
     }
 
     @Override
     public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
-        ast.C.visit(this, null);                                                    // Se visita el comando
+        ast.C.visit(this, null);                                      // Se visita el comando
         
-        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);   // Determina el tipo de la expresion
         
-        if(! eType.equals(StdEnvironment.booleanType)){                            // Si la expresión no es booleana, reporta el error
+        if(! eType.equals(StdEnvironment.booleanType)){            // Si la expresiï¿½n no es booleana, reporta el error
             reporter.reportError("Boolean expression expected here", "", ast.E.position);
         }
         
@@ -1068,11 +1070,11 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
-        ast.C.visit(this, null);                                                    // Se visita el comando
+        ast.C.visit(this, null);                                // Se visita el comando
         
-        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);   // Determina el tipo de la expresion
         
-        if(! eType.equals(StdEnvironment.booleanType)){                            // Si la expresión no es booleana, reporta el error
+        if(! eType.equals(StdEnvironment.booleanType)){            // Si la expresiï¿½n no es booleana, reporta el error
             reporter.reportError("Boolean expression expected here", "", ast.E.position);
         }
         
@@ -1081,21 +1083,23 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitLoopForCommand(LoopForCommand ast, Object o) {
-        TypeDenoter eType = (TypeDenoter) ast.E2.visit(this, null);                 // Determina el tipo de la expresion
-        if(! eType.equals(StdEnvironment.integerType)){                            // Si la expresión no es entera, reporta el error
+        TypeDenoter eType = (TypeDenoter) ast.E2.visit(this, null);  // Determina el tipo de la  segunda expresion
+        
+        if(! eType.equals(StdEnvironment.integerType)){             // Si la expresiï¿½n no es entera, reporta el error
             reporter.reportError("Integer expression expected here", "", ast.E2.position);
         }
-        idTable.openScope();                                                        // Abre un nuevo scope
-        ast.F.visit(this, null);                                                    // Visita el ForDeclaration
-        ast.C.visit(this, null);                                                    // Visita el comando
-        idTable.closeScope();                                                       // Cierra el scope
+        
+        idTable.openScope();                                      // Aumenta el scope de la tabla de identificacion
+        ast.F.visit(this, null);                                 // Visita el ForDeclaration
+        ast.C.visit(this, null);                                // Visita el comando
+        idTable.closeScope();                                  // Disminuye el scope de la tabla de identificacion
         
         return null;
     }
 
     @Override
     public Object visitSkipCommand(SkipCommand ast, Object o) {
-        return null; // Retorna nulo porque no hace nada
+        return null; // Retorna nulo porque ejecuta nada
     }
 
     @Override
@@ -1110,14 +1114,13 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-        idTable.openScope();
-        ast.D1.visit(this, null);
-        idTable.updateIsDecLocal(); // Indica el inicio de declaraciones que poseen variables locales asociadas
-        ast.D2.visit(this, null);
-        idTable.updateIsDecLocal(); // Indicia el fin del scope de las variables locales
-        idTable.closeScope();
+        idTable.beginLocalDeclarations();   // Indica el inicio de declaraciones locales
+        ast.D1.visit(this, null);          //  Realiza las declaraciones locales       
+        idTable.endLocalDeclarations();   //   Indica el fin de las declaraciones locales
+        ast.D2.visit(this, null);        //    Realiza las declaraciones no locales
+        idTable.popLinkObject();        //     Remueve el LinkObject  utilizado para ligar las declaraciones no locales
         return null;
-    }
+    }           
 
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
@@ -1128,9 +1131,10 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
-        ast.I.type = (TypeDenoter) ast.E.visit(this, null);
-        idTable.enter (ast.I.spelling, ast);
-        if (ast.duplicated)
+        ast.I.type = (TypeDenoter) ast.E.visit(this, null); // Determina el tipo del identifier a partir de la expresion
+        idTable.enter (ast.I.spelling, ast);               // Introduce el identificador en la tabla 
+        
+        if (ast.duplicated)                               // Si el identificador esta declarado, reporta el error
           reporter.reportError ("identifier \"%\" already declared",
                                 ast.I.spelling, ast.position);
         return null;
@@ -1138,18 +1142,19 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitForDeclaration(ForDeclaration ast, Object o) {
-        ast.I.visit(this, null);                                                    
-        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                                  // Determina el tipo de la expresion
+        ast.I.visit(this, null);                                       // Visita el AST del identificador                  
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);    // Determina el tipo de la expresion
         
-        if(! eType.equals(StdEnvironment.integerType)){                                             // Si la expresión no es entera, reporta el error
+        if(! eType.equals(StdEnvironment.integerType)){              // Si la expresiï¿½n no es entera, reporta el error
             reporter.reportError("Integer expression expected here", "", ast.E.position);
         }
         
-        idTable.enter (ast.I.spelling, ast);                                                        // Introduce el identificador de la variable de control en la tabla de identificacion
-        if (ast.duplicated)                                                                         // Si el identificador existe, reporta el error
-            reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position); 
-        return null;
+        idTable.enter (ast.I.spelling, ast);    // Introduce el identificador de la variable de control en la tabla de identificacion
         
+        if (ast.duplicated)                   // Si el identificador existe, reporta el error
+            reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position); 
+        
+        return null;
     }
 }
 
