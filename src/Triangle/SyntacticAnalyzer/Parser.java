@@ -805,17 +805,17 @@ public class Parser {
       SourcePosition declarationPos = new SourcePosition();
       start(declarationPos);
       
-      Declaration pfAST = parseProcFunc();                  // Primero debe ir un ProcFunc
+       declarationAST = parseProcFunc();                  // Primero debe ir un ProcFunc
       
         do {                                               // El código dentro del "do" se ejecuta al menos una vez
             accept(Token.AND);                            // Token "and" debe ir luego del ProcFunc
             Declaration p2fAST = parseProcFunc();        // Luego del token "and" debe ir un ProcFunc
             finish(declarationPos);
-            declarationAST = new ProcFuncDeclaration(pfAST, p2fAST, declarationPos ); 
-}
+            declarationAST = new ProcFuncDeclaration(declarationAST, p2fAST, declarationPos ); 
+        }
         while (currentToken.kind == Token.AND); // El ciclo se repite mientras hayan ProcFunc separados por un token "and"
       
-      return declarationAST;   
+      return declarationAST;
   }
 
   Declaration parseSingleDeclaration() throws SyntaxError {

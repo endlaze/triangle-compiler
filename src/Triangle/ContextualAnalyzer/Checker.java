@@ -133,7 +133,9 @@ public final class Checker implements Visitor {
     }
      private void visitRecursiveFPS() {
         for(AST ast : recursiveASTs){                           // Visita todos los AST de la lista de declaraciones recursivas
+            
             if(ast instanceof ProcDeclaration) {                // Descrimina los Procs de los Func
+                
                 ProcDeclaration proc = (ProcDeclaration) ast;   // Realiza un casteo de AST a Proc
                 idTable.openScope();                            
                 proc.FPS.visit(this, null);                     // Revisa y define tipos los FPS
@@ -1120,8 +1122,7 @@ public final class Checker implements Visitor {
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
         ast.D1.visit(this, null);
-        if(ast.D2 != null)            // Visita la segunda declaracion si esta existe
-            ast.D2.visit(this, null);
+        ast.D2.visit(this, null);
         return null;
     }
 
@@ -1138,14 +1139,14 @@ public final class Checker implements Visitor {
     @Override
     public Object visitForDeclaration(ForDeclaration ast, Object o) {
         ast.I.visit(this, null);                                                    
-        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                 // Determina el tipo de la expresion
+        TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);                                  // Determina el tipo de la expresion
         
-        if(! eType.equals(StdEnvironment.integerType)){                            // Si la expresión no es entera, reporta el error
+        if(! eType.equals(StdEnvironment.integerType)){                                             // Si la expresión no es entera, reporta el error
             reporter.reportError("Integer expression expected here", "", ast.E.position);
         }
         
-        idTable.enter (ast.I.spelling, ast);                                       // Introduce el identificador de la variable de control en la tabla de identificacion
-        if (ast.duplicated)                                                        // Si el identificador existe, reporta el error
+        idTable.enter (ast.I.spelling, ast);                                                        // Introduce el identificador de la variable de control en la tabla de identificacion
+        if (ast.duplicated)                                                                         // Si el identificador existe, reporta el error
             reporter.reportError ("identifier \"%\" already declared", ast.I.spelling, ast.position); 
         return null;
         
