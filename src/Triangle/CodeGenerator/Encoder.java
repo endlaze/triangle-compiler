@@ -360,7 +360,6 @@ public final class Encoder implements Visitor {
     Frame frame = (Frame) o;
     int extraSize;
     
-    
     extraSize = ((Integer) ast.T.visit(this, null)).intValue();
     emit(Machine.PUSHop, 0, 0, extraSize);
     ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
@@ -647,6 +646,10 @@ public final class Encoder implements Visitor {
       int displacement = ((EqualityRoutine) ast.decl.entity).displacement;
       emit(Machine.LOADLop, 0, 0, frame.size / 2);
       emit(Machine.CALLop, Machine.SBr, Machine.PBr, displacement);
+    } else{
+        ObjectAddress dummyAdress = new ObjectAddress(frame.level , 0);
+        emit(Machine.CALLop, displayRegister(frame.level, dummyAdress.level),
+	Machine.CBr, dummyAdress.displacement);
     }
     return null;
   }
@@ -1038,7 +1041,7 @@ public final class Encoder implements Visitor {
         ast.C.visit(this, frame);
         patch(jumpAddr, nextInstrAddr);
         ast.E.visit(this, frame);
-        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresión es verdadera, salta a loopAddr
+        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresiï¿½n es verdadera, salta a loopAddr
         return null;
     }
  
@@ -1054,7 +1057,7 @@ public final class Encoder implements Visitor {
         ast.C.visit(this, frame);
         patch(jumpAddr, nextInstrAddr);
         ast.E.visit(this, frame);
-        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr); // Si la expresión es falsa, salta a loopAddr
+        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr); // Si la expresiï¿½n es falsa, salta a loopAddr
         return null;
     }
 
@@ -1089,22 +1092,59 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Frame frame = (Frame)o;
+        int initialAddress = nextInstrAddr;
+        int extraSize = ((int) ast.D.visit(this, frame));
+        nextInstrAddr = initialAddress;
+        ast.D.visit(this, frame);
+        return extraSize;
     }
 
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Frame frame = (Frame)o;
+        int extraSize1 = ((int)ast.D1.visit(this, frame));
+        Frame frame1 = new Frame (frame, extraSize1);
+        int extraSize2 = ((int)ast.D2.visit(this, frame1));
+        return (extraSize1 + extraSize2);
     }
 
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Frame frame = (Frame) o;
+        int extraSize1, extraSize2;
+        extraSize1 = ((int) ast.D1.visit(this, frame));
+        Frame frame1 = new Frame (frame, extraSize1);
+        extraSize2 = ((int) ast.D2.visit(this, frame1));
+        return (extraSize1 + extraSize2);
     }
 
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
+        Frame frame = (Frame) o;
+        int extraSize;
+
+        extraSize = ((Integer) ast.E.visit(this, frame)).intValue();
+        //emit(Machine.PUSHop, 0, 0, extraSize);
+        ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+        ast.I.decl.entity = ast.entity;
+        Vname varName = new SimpleVname(ast.I, ast.getPosition());
+        encodeStore(varName, new Frame (frame, extraSize), extraSize);
+        writeTableDetails(ast);
+        return new Integer(extraSize);
+        
+//        Frame frame = (Frame) o;
+//        ast.I.visit(this, o);
+//        int varSize = ((int) ast.E.visit(this, frame));
+//        
+//        ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+//        writeTableDetails(ast); 
+//        
+//        Vname varName = new SimpleVname(ast.I, ast.getPosition() );
+//        encodeStore(varName, frame, varSize);
+//        
+//        return new Integer(varSize);
     }
 
     @Override
@@ -1133,7 +1173,7 @@ return null;
 //        ast.C.visit(this, frame);
 //        patch(jumpAddr, nextInstrAddr);
 //        ast.E.visit(this, frame);
-//        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresión es verdadera, salta a loopAddr
+//        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresiï¿½n es verdadera, salta a loopAddr
 //        return null;
 //    }
 }
