@@ -100,6 +100,7 @@ import Triangle.AbstractSyntaxTrees.Visitor;
 import Triangle.AbstractSyntaxTrees.Vname;
 import Triangle.AbstractSyntaxTrees.VnameExpression;
 import Triangle.AbstractSyntaxTrees.WhileCommand;
+import Triangle.SyntacticAnalyzer.SourcePosition;
 
 public final class Encoder implements Visitor {
 
@@ -358,7 +359,8 @@ public final class Encoder implements Visitor {
   public Object visitVarDeclaration(VarDeclaration ast, Object o) {
     Frame frame = (Frame) o;
     int extraSize;
-
+    
+    
     extraSize = ((Integer) ast.T.visit(this, null)).intValue();
     emit(Machine.PUSHop, 0, 0, extraSize);
     ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
@@ -1036,7 +1038,7 @@ public final class Encoder implements Visitor {
         ast.C.visit(this, frame);
         patch(jumpAddr, nextInstrAddr);
         ast.E.visit(this, frame);
-        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);
+        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresión es verdadera, salta a loopAddr
         return null;
     }
  
@@ -1052,24 +1054,33 @@ public final class Encoder implements Visitor {
         ast.C.visit(this, frame);
         patch(jumpAddr, nextInstrAddr);
         ast.E.visit(this, frame);
-        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);
+        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr); // Si la expresión es falsa, salta a loopAddr
         return null;
     }
 
     @Override
     public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // Do C1 While E1 repeat
+        Frame frame = (Frame) o;
+        int commandAddr = nextInstrAddr; // Guarda la direccion de C1 para volver a saltar 
+        ast.C.visit(this, frame); // Ejecuta C1
+        ast.E.visit(this, frame); // Evalua E1
+        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr); // Salta a la direccion de C1 si E1 es verdadero
+        return null;
     }
 
     @Override
     public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        // Do C1 Until E1 repeat
+        Frame frame = (Frame) o;
+        int commandAddr = nextInstrAddr; // Guarda la direccion de C1 para volver a saltar 
+        ast.C.visit(this, frame); // Ejecuta C1
+        ast.E.visit(this, frame); // Evalua E1
+        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, commandAddr); // Salta a la direccion de C1 si E1 es falsa
+        return null;
     }
 
-    @Override
-    public Object visitLoopForCommand(LoopForCommand ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+    
 
     @Override
     public Object visitSkipCommand(SkipCommand ast, Object o) {
@@ -1097,7 +1108,32 @@ public final class Encoder implements Visitor {
     }
 
     @Override
-    public Object visitForDeclaration(ForDeclaration aThis, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public Object visitForDeclaration(ForDeclaration forDeclAST, Object o) {
+        
+        Frame frame = (Frame) o;
+        int extraSize = (int) forDeclAST.E.visit(this, null);
+        emit(Machine.PUSHop, 0, 0, extraSize);
+        forDeclAST.entity = new  KnownAddress(Machine.addressSize, frame.level, frame.size);
+        writeTableDetails(forDeclAST);
+        return extraSize;
     }
+    
+    @Override
+    public Object visitLoopForCommand(LoopForCommand loopForAST, Object o) {
+return null;
+    }
+    
+// @Override
+//    public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
+//        Frame frame = (Frame) o;
+//
+//        jumpAddr = nextInstrAddr;
+//        emit(Machine.JUMPop, 0, Machine.CBr, 0);
+//        loopAddr = nextInstrAddr;
+//        ast.C.visit(this, frame);
+//        patch(jumpAddr, nextInstrAddr);
+//        ast.E.visit(this, frame);
+//        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresión es verdadera, salta a loopAddr
+//        return null;
+//    }
 }
