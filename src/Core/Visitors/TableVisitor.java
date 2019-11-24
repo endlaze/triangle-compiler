@@ -414,8 +414,22 @@ public class TableVisitor implements Visitor {
     
     @Override
     public Object visitForDeclaration(ForDeclaration ast, Object o) {
-        ast.E.visit(this, null);
         ast.I.visit(this, null);
+        try {
+            int value = -1;
+             IntegerLiteral IL = ((IntegerExpression) ast.E).IL;
+                value = Integer.parseInt(IL.spelling); // Transforma el spelling a un entero
+      addIdentifier(ast.I.spelling, 
+              "KnownAddress", 
+              (ast.entity!=null?ast.entity.size:0), 
+              ((KnownAddress)ast.entity).address.level, 
+              ((KnownAddress)ast.entity).address.displacement, 
+              value);
+      
+      } catch (NullPointerException e) { }
+      
+        ast.E.visit(this, null);
+        
         return (null);
     }
   // FIN FUNCIONES DE DECLARACIONES
