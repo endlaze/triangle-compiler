@@ -390,9 +390,26 @@ public class TableVisitor implements Visitor {
 
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
-        ast.E.visit(this, null);
-        ast.I.visit(this, null);
-        return (null);
+        
+        try {
+            int size, level, displacement, value = -1;
+            size = (ast.entity!=null?ast.entity.size:0);
+            level = ((KnownAddress)ast.entity).address.level;
+            displacement = ((KnownAddress)ast.entity).address.displacement;
+            
+            if(ast.E instanceof IntegerExpression){ // Determina si la expresion es tipo int
+                IntegerLiteral IL = ((IntegerExpression) ast.E).IL;
+                value = Integer.parseInt(IL.spelling); // Transforma el spelling a un entero
+            }
+            else if (ast.E instanceof CharacterExpression){ // Determina si la expresion es tipo char
+                CharacterLiteral CL = ((CharacterExpression) ast.E).CL; 
+                value = CL.spelling.charAt(1); // Transforma el char a su equivalente ASCII
+            }
+            addIdentifier(ast.I.spelling, "KnownAddress", size, level, displacement,value); // Agrega un nuevo identificador a la tabla
+            
+      } catch (NullPointerException e) { }
+        ast.E.visit(this,null);
+        return (null); 
     }
     
     @Override
@@ -701,7 +718,7 @@ public class TableVisitor implements Visitor {
         }
     }
     
-    
+
     /**
      * Returns the filled table model.
      */

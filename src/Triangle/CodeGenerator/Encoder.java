@@ -906,7 +906,7 @@ public final class Encoder implements Visitor {
 
   private void encodeStore(Vname V, Frame frame, int valSize) {
 
-    RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);
+    RuntimeEntity baseObject = (RuntimeEntity) V.visit(this, frame);    
     // If indexed = true, code will have been generated to load an index value.
     if (valSize > 255) {
       reporter.reportRestriction("can't store values larger than 255 words");
@@ -1122,34 +1122,20 @@ public final class Encoder implements Visitor {
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
         
+        // var Id init Exp
         Frame frame = (Frame) o;
         int extraSize;
+        extraSize = ((Integer) ast.E.visit(this, null)).intValue(); // Visita E2 y determina su tamaño
+        emit(Machine.PUSHop, 0, 0, extraSize); // Pushea espacio a la pila para la direccion de memoria
+        ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size); // Crea la direccion de memoria
+        emit(Machine.STOREIop, extraSize, 0, 0); // Toma la direccion en el tope de la pila y guarda el valor de E2 en esta
 
-        extraSize = ((Integer) ast.E.visit(this, frame)).intValue();
-        //emit(Machine.PUSHop, 0, 0, extraSize);
-        ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
-        ast.I.decl.entity = ast.entity;
-        Vname varName = new SimpleVname(ast.I, ast.getPosition());
-        encodeStore(varName, new Frame (frame, extraSize), extraSize);
         writeTableDetails(ast);
         return new Integer(extraSize);
-        
-//        Frame frame = (Frame) o;
-//        ast.I.visit(this, o);
-//        int varSize = ((int) ast.E.visit(this, frame));
-//        
-//        ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
-//        writeTableDetails(ast); 
-//        
-//        Vname varName = new SimpleVname(ast.I, ast.getPosition() );
-//        encodeStore(varName, frame, varSize);
-//        
-//        return new Integer(varSize);
     }
 
     @Override
     public Object visitForDeclaration(ForDeclaration forDeclAST, Object o) {
-        
         Frame frame = (Frame) o;
         int extraSize = (int) forDeclAST.E.visit(this, null);
         emit(Machine.PUSHop, 0, 0, extraSize);
@@ -1157,23 +1143,9 @@ public final class Encoder implements Visitor {
         writeTableDetails(forDeclAST);
         return extraSize;
     }
-    
+
     @Override
-    public Object visitLoopForCommand(LoopForCommand loopForAST, Object o) {
-return null;
+    public Object visitLoopForCommand(LoopForCommand ast, Object o) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
-    
-// @Override
-//    public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
-//        Frame frame = (Frame) o;
-//
-//        jumpAddr = nextInstrAddr;
-//        emit(Machine.JUMPop, 0, Machine.CBr, 0);
-//        loopAddr = nextInstrAddr;
-//        ast.C.visit(this, frame);
-//        patch(jumpAddr, nextInstrAddr);
-//        ast.E.visit(this, frame);
-//        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresiï¿½n es verdadera, salta a loopAddr
-//        return null;
-//    }
 }

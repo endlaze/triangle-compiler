@@ -853,7 +853,7 @@ public class Parser {
             Expression eAST = parseExpression();
             finish(declarationPos);
             declarationAST = new VarInitDeclaration(iAST, eAST, declarationPos);
-        }
+        }         
       }
       break;
 
