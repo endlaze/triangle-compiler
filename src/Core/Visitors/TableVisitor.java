@@ -391,6 +391,9 @@ public class TableVisitor implements Visitor {
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
         
+        ast.E.visit(this,null);
+        ast.I.visit(this, null);
+        
         try {
             int size, level, displacement, value = -1;
             size = (ast.entity!=null?ast.entity.size:0);
@@ -403,17 +406,17 @@ public class TableVisitor implements Visitor {
             }
             else if (ast.E instanceof CharacterExpression){ // Determina si la expresion es tipo char
                 CharacterLiteral CL = ((CharacterExpression) ast.E).CL; 
-                value = CL.spelling.charAt(1); // Transforma el char a su equivalente ASCII
+                value = CL.spelling.charAt(1); // Transforma el char a su equivalente numérico
             }
             addIdentifier(ast.I.spelling, "KnownAddress", size, level, displacement,value); // Agrega un nuevo identificador a la tabla
             
       } catch (NullPointerException e) { }
-        ast.E.visit(this,null);
         return (null); 
     }
     
     @Override
     public Object visitForDeclaration(ForDeclaration ast, Object o) {
+        ast.E.visit(this, null);
         ast.I.visit(this, null);
         try {
             int value = -1;
@@ -427,11 +430,10 @@ public class TableVisitor implements Visitor {
               value);
       
       } catch (NullPointerException e) { }
-      
-        ast.E.visit(this, null);
-        
         return (null);
     }
+    
+    
   // FIN FUNCIONES DE DECLARACIONES
   
   

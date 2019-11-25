@@ -1032,54 +1032,60 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitLoopWhileDoCommand(LoopWhileDoCommand ast, Object o) {
+        // loop while E do C repeat
         Frame frame = (Frame) o;
         int jumpAddr, loopAddr;
 
-        jumpAddr = nextInstrAddr;
-        emit(Machine.JUMPop, 0, Machine.CBr, 0);
-        loopAddr = nextInstrAddr;
-        ast.C.visit(this, frame);
-        patch(jumpAddr, nextInstrAddr);
-        ast.E.visit(this, frame);
-        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); // Si la expresiï¿½n es verdadera, salta a loopAddr
+        jumpAddr = nextInstrAddr; // Etiqueta h para saltar hacia E
+        emit(Machine.JUMPop, 0, Machine.CBr, 0); // Salta a la etiqueta h
+        loopAddr = nextInstrAddr; // Etiqueta g para saltar a C
+        ast.C.visit(this, frame); // Evalua C
+        patch(jumpAddr, nextInstrAddr); // Parcha etiqueta h para poder ejecutar E
+        ast.E.visit(this, frame); // Evalua E
+        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr); 
+        // Si la expresion es verdadera, salta a g para repetir el comando
         return null;
     }
  
 
     @Override
     public Object visitLoopUntilDoCommand(LoopUntilDoCommand ast, Object o) {
+        // loop until E do C repeat
         Frame frame = (Frame) o;
         int jumpAddr, loopAddr;
 
-        jumpAddr = nextInstrAddr;
-        emit(Machine.JUMPop, 0, Machine.CBr, 0);
-        loopAddr = nextInstrAddr;
-        ast.C.visit(this, frame);
-        patch(jumpAddr, nextInstrAddr);
-        ast.E.visit(this, frame);
-        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr); // Si la expresiï¿½n es falsa, salta a loopAddr
+        jumpAddr = nextInstrAddr; // Etiqueta h para saltar hacia E
+        emit(Machine.JUMPop, 0, Machine.CBr, 0); // Salta a la etiqueta h
+        loopAddr = nextInstrAddr; // Etiqueta g para saltar a C
+        ast.C.visit(this, frame); // Evalua C
+        patch(jumpAddr, nextInstrAddr); // Parcha etiqueta h para poder ejecutar E
+        ast.E.visit(this, frame); // Evalua E
+        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, loopAddr);
+        // Si la expresion es falsa, salta a g para repetir el comando
         return null;
     }
 
     @Override
     public Object visitLoopDoWhileCommand(LoopDoWhileCommand ast, Object o) {
-        // Do C1 While E1 repeat
+        // loop do C while E repeat
         Frame frame = (Frame) o;
-        int commandAddr = nextInstrAddr; // Guarda la direccion de C1 para volver a saltar 
-        ast.C.visit(this, frame); // Ejecuta C1
-        ast.E.visit(this, frame); // Evalua E1
-        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr); // Salta a la direccion de C1 si E1 es verdadero
+        int commandAddr = nextInstrAddr; // Etiqueta h para saltar hacia C
+        ast.C.visit(this, frame); // Ejecuta C
+        ast.E.visit(this, frame); // Evalua E
+        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, commandAddr); 
+        // Si la expresion es verdadera, salta a h para repetir el comando
         return null;
     }
 
     @Override
     public Object visitLoopDoUntilCommand(LoopDoUntilCommand ast, Object o) {
-        // Do C1 Until E1 repeat
+        // loop do C until E repeat
         Frame frame = (Frame) o;
-        int commandAddr = nextInstrAddr; // Guarda la direccion de C1 para volver a saltar 
-        ast.C.visit(this, frame); // Ejecuta C1
-        ast.E.visit(this, frame); // Evalua E1
-        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, commandAddr); // Salta a la direccion de C1 si E1 es falsa
+        int commandAddr = nextInstrAddr; // Etiqueta h para saltar hacia C
+        ast.C.visit(this, frame); // Ejecuta C
+        ast.E.visit(this, frame); // Evalua E
+        emit(Machine.JUMPIFop, Machine.falseRep, Machine.CBr, commandAddr);
+        // Si la expresion es falsa, salta a h para repetir el comando
         return null;
     }
 
@@ -1122,55 +1128,62 @@ public final class Encoder implements Visitor {
     @Override
     public Object visitVarInitDeclaration(VarInitDeclaration ast, Object o) {
         
-        // var Id init Exp
+        // var Id init E1
         Frame frame = (Frame) o;
-        int extraSize = ((int) ast.E.visit(this, frame)); // Visita E2 y determina su tamaño
+        int extraSize = ((int) ast.E.visit(this, frame)); // Visita E1 y determina su tamaño
         emit(Machine.PUSHop, 0, 0, extraSize); // Pushea espacio a la pila para la direccion de memoria
         ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size); // Crea la direccion de memoria
-        emit(Machine.STOREIop, extraSize, 0, 0); // Toma la direccion en el tope de la pila y guarda el valor de E2 en esta
+        emit(Machine.STOREIop, extraSize, 0, 0); // Toma la direccion en el tope de la pila y guarda el valor de E1 en esta
 
-        writeTableDetails(ast);
+        writeTableDetails(ast); // Imprime la variable inicializada en Table Details
         return  (extraSize);
     }
 
     @Override
     public Object visitForDeclaration(ForDeclaration forDeclAST, Object o) {
-        // var Id init Exp
+        // Id ~ E1
         Frame frame = (Frame) o;
-        int extraSize = ((int) forDeclAST.E.visit(this, frame));
-        emit(Machine.PUSHop, 0, 0, extraSize);
+        // Evalua E1 y devuelve su tamaño
+        int extraSize = ((int) forDeclAST.E.visit(this, frame)); 
+        // Pushea memoria en la pila para Id a partir del tamaño de E1
+        emit(Machine.PUSHop, 0, 0, extraSize); 
+        // Crea la dirección de memoria de Id
         forDeclAST.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
-        emit(Machine.STOREIop, extraSize, 0, 0);
-        writeTableDetails(forDeclAST);
+        // Guarda el valor de E1 en la dirección de memoria de Id
+        emit(Machine.STOREIop, extraSize, 0, 0); 
+        writeTableDetails(forDeclAST); // Imprime la declaracion en Table Details
         return (extraSize);
     }
 
     @Override
     public Object visitLoopForCommand(LoopForCommand ast, Object o) {
+        // loop for Id ~ E1 to E2 repeat
         Frame frame = (Frame) o;
-        int extraSize = ((int) ast.F.visit(this, frame)); // Visita E2 y determina su tamaño
+        // Ejecuta Id ~ E1 y devuelve su tamaño
+        int extraSize = ((int) ast.F.visit(this, frame)); 
         frame = new Frame(frame, extraSize);
-        ObjectAddress address = ((KnownAddress) ast.F.entity).address; // Obtiene la direccion de la variable de control
+        // Obtiene la direccion de la variable de control
+        ObjectAddress address = ((KnownAddress) ast.F.entity).address; 
 
         int jumpAddr, loopAddr;
 
-        jumpAddr = nextInstrAddr;                                       // Obtiene la direccion de la expresion
-        emit(Machine.JUMPop, 0, Machine.CBr, 0);                        // Salta a la evaluacion de la expresion
-        loopAddr = nextInstrAddr;                                       // Obtiene direccion del command
-        ast.C.visit(this, frame);                                       // Visita el command
+        jumpAddr = nextInstrAddr;  // Obtiene la direccion de la expresion
+        emit(Machine.JUMPop, 0, Machine.CBr, 0); // Salta a la evaluacion de la expresion
+        loopAddr = nextInstrAddr; // Obtiene direccion de C
+        ast.C.visit(this, frame); // Visita C
         
-        emit(Machine.LOADop, extraSize, displayRegister(frame.level,    //Pushea a la pila la variable de control
+        emit(Machine.LOADop, extraSize, displayRegister(frame.level,   //Pushea a la pila la variable de control
          address.level), address.displacement);
-        emit(Machine.LOADLop,0,0,1);                                    // Pushea el valor de 1
+        emit(Machine.LOADLop,0,0,1);                                   // Pushea el valor de 1
         emit(Machine.CALLop,Machine.SBr,Machine.PBr,Machine.addDisplacement); //Suma a la variable de control y lo deja en el tope de la pila
         emit(Machine.STOREop, extraSize, displayRegister(frame.level,         // Guarda el resultado en la variable de control
          address.level), address.displacement);
         patch(jumpAddr, nextInstrAddr);                                       // Parcha la direccion donde se evalua la expresion
+        ast.E2.visit(this, frame);                                            // Pushea el valor de E2
         emit(Machine.LOADop, extraSize, displayRegister(frame.level,          // Pushea el valor de la variable de control
          address.level), address.displacement);
-        ast.E2.visit(this, frame);                                            // Pushea el valor de la expresion 2
         emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.geDisplacement);// Evalua las expresiones con un mayor o igual
-        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);         // Salto condicional al comando si la evaluacion anterior es verdadera
+        emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);        // Salto condicional al comando si la evaluacion anterior es verdadera
         return null;
     }
 }
