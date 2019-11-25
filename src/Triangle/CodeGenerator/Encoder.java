@@ -1098,30 +1098,27 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitRecursiveDeclaration(RecursiveDeclaration ast, Object o) {
-        Frame frame = (Frame)o;
-        int initialAddress = nextInstrAddr;
-        int extraSize = ((int) ast.D.visit(this, frame));
-        nextInstrAddr = initialAddress;
-        ast.D.visit(this, frame);
+        Frame frame = (Frame)o;                                                 
+        int extraSize = ((int) ast.D.visit(this, frame));                       //Visita las declaraciones recursivas
         return extraSize;
     }
 
     @Override
     public Object visitLocalDeclaration(LocalDeclaration ast, Object o) {
-        Frame frame = (Frame)o;
-        int extraSize1 = ((int)ast.D1.visit(this, frame));
-        Frame frame1 = new Frame (frame, extraSize1);
-        int extraSize2 = ((int)ast.D2.visit(this, frame1));
-        return (extraSize1 + extraSize2);
+        Frame frame = (Frame)o;                                                 // Crea el frame
+        int extraSize1 = ((int)ast.D1.visit(this, frame));                      // Evalua la primera declaracion
+        Frame frame1 = new Frame (frame, extraSize1);                           // Crea segundo frame
+        int extraSize2 = ((int)ast.D2.visit(this, frame1));                     // Evalua segunda declaracion
+        return (extraSize1 + extraSize2);                                       // Retorna el valor de la suma de las declaraciones
     }
 
     @Override
     public Object visitProcFuncDeclaration(ProcFuncDeclaration ast, Object o) {
         Frame frame = (Frame) o;
         int extraSize1, extraSize2;
-        extraSize1 = ((int) ast.D1.visit(this, frame));
+        extraSize1 = ((int) ast.D1.visit(this, frame));                         //Visita la primera declaracion
         Frame frame1 = new Frame (frame, extraSize1);
-        extraSize2 = ((int) ast.D2.visit(this, frame1));
+        extraSize2 = ((int) ast.D2.visit(this, frame1));                        //Visita la segunda declaracion 
         return (extraSize1 + extraSize2);
     }
 
